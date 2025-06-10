@@ -1,0 +1,102 @@
+[
+    {
+      "id": "event1",
+      "title": "All Day Event",
+      "start": "2024-01-01T00:00:00.000Z",
+      "end": "2024-01-01T23:59:00.000Z",
+      "className": "fc-event-success",
+      "groupId": "work",
+      "details": "Her extensive perceived may any sincerity extremity. Indeed add rather may pretty see."
+    },
+    {
+      "id": "event2",
+      "title": "Break",
+      "start": "2024-01-29T16:00:00.000Z",
+      "end": "2024-01-30T20:00:00.000Z",
+      "allDay": false,
+      "className": "fc-event-primary",
+      "groupId": "important",
+      "details": "Her extensive perceived may any sincerity extremity. Indeed add rather may pretty see."
+    },
+    {
+      "id": "event3",
+      "title": "Shopping",
+      "start": "2024-01-05T12:00:00.000Z",
+      "end": "2024-01-05T20:00:00.000Z",
+      "allDay": false,
+      "className": "fc-event-warning",
+      "groupId": "personal",
+      "details": "Her extensive perceived may any sincerity extremity. Indeed add rather may pretty see."
+    },
+    {
+      "id": "event4",
+      "title": "Meeting",
+      "start": "2024-01-15T10:30:00.000Z",
+      "end": "2024-01-17T20:00:00.000Z",
+      "allDay": false,
+      "className": "fc-event-success",
+      "groupId": "work",
+      "details": "Her extensive perceived may any sincerity extremity. Indeed add rather may pretty see."
+    },
+    {
+      "id": "event5",
+      "title": "Lunch",
+      "start": "2024-01-10T11:00:00.000Z",
+      "end": "2024-01-10T14:00:00.000Z",
+      "allDay": false,
+      "className": "fc-event-primary",
+      "groupId": "important",
+      "details": "Her extensive perceived may any sincerity extremity. Indeed add rather may pretty see."
+    },
+    {
+      "id": "event6",
+      "title": "Meeting",
+      "start": "2024-01-03T12:30:00.000Z",
+      "end": "2024-01-03T14:30:00.000Z",
+      "allDay": false,
+      "className": "fc-event-success",
+      "groupId": "work",
+      "details": "Her extensive perceived may any sincerity extremity. Indeed add rather may pretty see."
+    },
+    {
+      "id": "event7",
+      "title": "Birthday Party",
+      "start": "2024-01-18T19:00:00.000Z",
+      "end": "2024-01-18T19:30:00.000Z",
+      "allDay": false,
+      "className": "fc-event-warning",
+      "groupId": "personal",
+      "details": "Her extensive perceived may any sincerity extremity. Indeed add rather may pretty see."
+    },
+    {
+      "id": "event8",
+      "title": "Go to Delhi",
+      "start": "2023-12-27T10:00:00.000Z",
+      "end": "2023-12-28T10:30:00.000Z",
+      "allDay": false,
+      "className": "fc-event-danger",
+      "groupId": "travel",
+      "details": "Her extensive perceived may any sincerity extremity. Indeed add rather may pretty see."
+    },
+    {
+      "id": "event9",
+      "title": "Get To Gather",
+      "start": "2024-01-16T10:00:00.000Z",
+      "end": "2024-01-17T10:30:00.000Z",
+      "allDay": false,
+      "className": "fc-event-info",
+      "groupId": "friends",
+      "details": "Her extensive perceived may any sincerity extremity. Indeed add rather may pretty see."
+    },
+    {
+      "id": "event10",
+      "title": "Collage Party",
+      "start": "2024-01-30T10:00:00.000Z",
+      "end": "2024-01-30T10:30:00.000Z",
+      "allDay": false,
+      "className": "fc-event-info",
+      "groupId": "friends",
+      "details": "Her extensive perceived may any sincerity extremity. Indeed add rather may pretty see."
+    }
+  ]
+  
