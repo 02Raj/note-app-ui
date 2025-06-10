@@ -42,7 +42,7 @@ export const ROUTES: RouteInfo[] = [
 
 
   },  {
-    path: '',
+    path: '/admin/topic',
     title: 'Study Material',
     iconType: 'material-icons-outlined',
     icon: 'space_dashboard',
@@ -53,7 +53,7 @@ export const ROUTES: RouteInfo[] = [
     role: ['Admin'],
     submenu: [
       {
-        path: '/admin/dashboard/main',
+        path: '/admin/admin/topic',
         title: 'Topic',
         iconType: '',
         icon: '',
@@ -61,7 +61,7 @@ export const ROUTES: RouteInfo[] = [
         groupTitle: false,
         badge: '',
         badgeClass: '',
-        role: [''],
+        role: ['Admin'],
         submenu: [],
       }, 
         {
@@ -95,7 +95,7 @@ export const ROUTES: RouteInfo[] = [
   // Teacher Modules
 
   {
-    path: '/teacher/dashboard',
+    path: '/teacher/dashboard/main',
     title: 'MENUITEMS.TEACHER.LIST.DASHBOARD',
     iconType: 'material-icons-outlined',
     icon: 'space_dashboard',
@@ -106,6 +106,7 @@ export const ROUTES: RouteInfo[] = [
     role: ['Teacher'],
     submenu: [],
   },
+
 
   // Student Modules
 
@@ -121,7 +122,57 @@ export const ROUTES: RouteInfo[] = [
     role: ['Student'],
     submenu: [],
   },
+  {
+    path: '',
+    title: 'Study Material',
+    iconType: 'material-icons-outlined',
+    icon: 'space_dashboard',
+    class: 'menu-toggle',
+    groupTitle: false,
+    badge: '',
+    badgeClass: '',
+    role: ['Student'],
+    submenu: [
+      {
+        path: '/student/topic',
+        title: 'Topic',
+        iconType: '',
+        icon: '',
+        class: 'ml-menu',
+        groupTitle: false,
+        badge: '',
+        badgeClass: '',
+        role: [''],
+        submenu: [],
+      }, 
+        {
+        path: '/student/subtopic',
+        title: 'Subtopic',
+        iconType: '',
+        icon: '',
+        class: 'ml-menu',
+        groupTitle: false,
+        badge: '',
+        badgeClass: '',
+        role: [''],
+        submenu: [],
+      },
+      {
+        path: '/student/notes',
+        title: 'Notes',
+        iconType: '',
+        icon: '',
+        class: 'ml-menu',
+        groupTitle: false,
+        badge: '',
+        badgeClass: '',
+        role: [''],
+        submenu: [],
+      },
+    ],
 
+    
+  },
   // Common Module
 
   {

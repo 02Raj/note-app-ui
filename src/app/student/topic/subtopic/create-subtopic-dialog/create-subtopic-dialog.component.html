@@ -1,0 +1,56 @@
+<div class="addContainer">
+    <div class="modalHeader">
+      <div class="modalTitle">
+        {{ dialogTitle }}
+      </div>
+      <button mat-icon-button (click)="onCancel()" class="modal-close-button" aria-label="Close dialog" type="button">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  
+    <!-- The form is bound to the onSave() method via ngSubmit -->
+    <form [formGroup]="subtopicForm" (ngSubmit)="onSave()">
+      <div mat-dialog-content>
+        <div class="row">
+  
+          <!-- Topic Selection Dropdown -->
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+            <mat-form-field class="example-full-width" appearance="outline">
+              <mat-label>Parent Topic</mat-label>
+              <mat-select formControlName="topicId" required>
+                <!-- Loop through the topics loaded from the service -->
+                @for (topic of topics; track topic._id) {
+                  <mat-option [value]="topic._id">{{ topic.name }}</mat-option>
+                }
+              </mat-select>
+              @if (subtopicForm.get('topicId')?.hasError('required')) {
+                <mat-error>
+                  Parent topic is required
+                </mat-error>
+              }
+            </mat-form-field>
+          </div>
+  
+          <!-- Subtopic Name Input -->
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+            <mat-form-field class="example-full-width" appearance="outline">
+              <mat-label>Subtopic Name</mat-label>
+              <input matInput formControlName="name" required>
+              @if (subtopicForm.get('name')?.hasError('required')) {
+                <mat-error>
+                  Subtopic name is required
+                </mat-error>
+              }
+            </mat-form-field>
+          </div>
+  
+        </div>
+      </div>
+  
+      <!-- Dialog Action Buttons -->
+      <div mat-dialog-actions class="modal-actions">
+        <button mat-flat-button color="warn" type="button" (click)="onCancel()">Cancel</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="!subtopicForm.valid">Save</button>
+      </div>
+    </form>
+  </div>

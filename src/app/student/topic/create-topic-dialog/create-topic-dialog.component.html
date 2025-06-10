@@ -1,0 +1,35 @@
+<div class="addContainer">
+    <div class="modalHeader">
+      <div class="modalTitle">
+        {{ dialogTitle }}
+      </div>
+      <button mat-icon-button mat-dialog-close class="modal-close-button" aria-label="Close dialog" type="button">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  
+    <form [formGroup]="topicForm" (ngSubmit)="createTopic()">
+      <div mat-dialog-content>
+        <div class="row">
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+            <mat-form-field class="example-full-width" appearance="outline">
+              <mat-label>Topic Name</mat-label>
+              <input matInput formControlName="name" required>
+              @if (topicForm.get('name')?.hasError('required')) {
+                <mat-error>
+                  Topic name is required
+                </mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+  
+      <div mat-dialog-actions class="modal-actions">
+        <div class="example-button-row">
+          <button mat-flat-button color="primary" [disabled]="!topicForm.valid" type="submit">Save</button>
+          <button mat-flat-button mat-dialog-close color="warn" type="button">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
