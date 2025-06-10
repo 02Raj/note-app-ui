@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import { NotesService } from './notes.service';
+import { CreateNotesDialogComponent } from './create-notes-dialog/create-notes-dialog.component';
 
 
 
@@ -113,9 +114,16 @@ export class NotesComponent implements OnInit, AfterViewInit {
    * Opens the dialog to create a new note.
    */
   openCreateDialog(): void {
-    /*
-    const dialogRef = this.dialog.open(CreateNoteDialogComponent, {
-      width: '600px',
+    const dialogRef = this.dialog.open(CreateNotesDialogComponent, {
+      // Remove the width property
+      // width: '800px',
+
+      // Add these properties to make it full screen
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      height: '100%',
+      width: '100%',
+      panelClass: 'full-screen-dialog' // Custom class for true full screen
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -124,7 +132,6 @@ export class NotesComponent implements OnInit, AfterViewInit {
         this.refresh();
       }
     });
-    */
   }
 
   /**
