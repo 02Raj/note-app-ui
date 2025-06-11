@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, ValidatorFn, AbstractControl, FormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -13,6 +13,28 @@ import { QuillModule } from 'ngx-quill';
 import { NotePayload, NotesService } from '../notes.service';
 import { TopicService } from 'app/student/topic/topic.service';
 // Adjust path if necessary
+// DEBUGGING VERSION of the validator
+export function quillRequiredValidator(): ValidatorFn {
+  return (control: AbstractControl): { [key: string]: any } | null => {
+    const value = control.value;
+
+    if (value) {
+      const tempElement = document.createElement('div');
+      tempElement.innerHTML = value;
+      const text = tempElement.textContent || tempElement.innerText || '';
+
+      if (text.trim().length === 0) {
+        return { required: true };
+      }
+    } else {
+      return { required: true };
+    }
+
+    return null;
+  };
+}
+
+
 
 @Component({
   selector: 'app-create-notes-dialog',
@@ -26,7 +48,9 @@ import { TopicService } from 'app/student/topic/topic.service';
     MatFormFieldModule,
     MatSelectModule,
     MatIconModule,
-    QuillModule // <-- Add QuillModule here
+    QuillModule ,
+    FormsModule,          
+
   ],
   templateUrl: './create-notes-dialog.component.html',
   styleUrls: ['./create-notes-dialog.component.scss']
@@ -55,7 +79,7 @@ export class CreateNotesDialogComponent implements OnInit {
       ['clean'],
       ['link', 'image'] // link and image uploading
     ],
-    syntax: true // Enable syntax highlighting
+    // syntax: true // Enable syntax highlighting
   };
 
   constructor(
@@ -68,7 +92,7 @@ export class CreateNotesDialogComponent implements OnInit {
       title: ['', Validators.required],
       topicId: ['', Validators.required],
       subtopicId: [''], // Optional
-      content: ['', Validators.required]
+      content: ['']
     });
   }
 
@@ -103,21 +127,58 @@ export class CreateNotesDialogComponent implements OnInit {
 
   onSave(): void {
     if (this.noteForm.invalid) {
-      return; // If form is not valid, do nothing
+      console.log('Form is invalid. Finding error fields...');
+      this.noteForm.markAllAsTouched();
+  
+      Object.keys(this.noteForm.controls).forEach(field => {
+        const control = this.noteForm.get(field);
+        if (control?.invalid) {
+          console.log(`Field -> '${field}' is invalid. Errors:`, control.errors);
+          console.log(`Value of '${field}':`, control.value);
+        }
+      });
+  
+      return;
     }
-
+  
     const payload: NotePayload = this.noteForm.value;
-
+    console.log("Final payload:", payload); // Debug
+  
     this.notesService.createNote(payload).subscribe({
       next: (response) => {
         console.log('Note created successfully!', response);
-        this.dialogRef.close(true); // Close dialog and signal success
+        this.dialogRef.close(true);
       },
       error: (err) => {
         console.error('Error creating note', err);
       }
     });
   }
+  
+  
+// Add this method inside your CreateNotesDialogComponent class
+
+public onEditorCreated(editor: any) {
+  editor.on('text-change', () => {
+    const html = editor.root.innerHTML;
+    const control = this.noteForm.get('content');
+
+    const isEmpty = html === '<p><br></p>';
+
+    if (control) {
+      control.setValue(isEmpty ? '' : html);
+      control.markAsTouched(); // Ensures dirty/touched status
+      control.updateValueAndValidity(); // Triggers validator
+      console.log('Updated content value:', control.value);
+    }
+  });
+}
+
+// Yeh aapka TypeScript function hai jo call nahi ho raha
+onContentChanged(event: any): void {
+  console.log('Function called!', event);
+}
+
 
   onCancel(): void {
     this.dialogRef.close();

@@ -10,26 +10,20 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import { NotesService } from './notes.service';
 import { CreateNotesDialogComponent } from './create-notes-dialog/create-notes-dialog.component';
-
-
-
-// Interface for a single Note for type safety
-export interface Note {
-  _id: string;
-  title: string;
-  content: string;
-  topicName: string;
-  subtopicName?: string;
-  revisionStage: number;
-  revisionDueDate: string;
-  createdAt: string;
-}
+import { NoteDetailsComponent } from './note-details/note-details.component';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { TopicService } from '../topic/topic.service';
+import { Note } from './modal/notes.model';
+ // Assuming you have a separate model file
 
 @Component({
   selector: 'app-notes',
   standalone: true,
   imports: [
     DatePipe,
+    ReactiveFormsModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -37,6 +31,8 @@ export interface Note {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
+    MatFormFieldModule,
     BreadcrumbComponent
   ],
   templateUrl: './notes.component.html',
@@ -51,93 +47,124 @@ export class NotesComponent implements OnInit, AfterViewInit {
     },
   ];
 
-  // Define the columns to be displayed in the table
   displayedColumns: string[] = ['title', 'topicName', 'revisionStage', 'revisionDueDate', 'createdAt', 'actions'];
   dataSource!: MatTableDataSource<Note>;
   isLoading = true;
+
+  filterForm: FormGroup;
+  topics: any[] = [];
+  subtopics: any[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
     private notesService: NotesService,
+    private topicService: TopicService,
+    private fb: FormBuilder,
     public dialog: MatDialog
-  ) {}
+  ) {
+    this.filterForm = this.fb.group({
+      topicId: [''],
+      subtopicId: [{ value: '', disabled: true }]
+    });
+  }
 
   ngOnInit() {
     this.getAllNotes();
+    this.loadTopics();
+    this.setupFilterListeners();
   }
 
   ngAfterViewInit() {
-    // This is intentionally left blank for now.
-    // We link paginator/sort after data is loaded.
+    // This method is intentionally left empty. 
+    // MatTableDataSource should be configured after data is fetched.
   }
 
-  /**
-   * Fetches all notes from the service and populates the table.
-   */
-  getAllNotes() {
-    this.isLoading = true;
-    this.notesService.getAllNotes().subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        if (response.status === 'success' && response.data) {
-          this.dataSource = new MatTableDataSource(response.data);
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
-        }
-      },
-      error: (error) => {
-        this.isLoading = false;
-        console.error('Error fetching notes:', error);
+  loadTopics() {
+    this.topicService.getAllTopics().subscribe(response => {
+      if (response.status === 'success') {
+        this.topics = response.data;
       }
     });
   }
 
-  /**
-   * Applies a filter to the table when the user types in the search box.
-   */
+  setupFilterListeners() {
+    this.filterForm.get('topicId')?.valueChanges.subscribe(topicId => {
+      this.filterForm.get('subtopicId')?.reset('', { emitEvent: false });
+      this.subtopics = [];
+
+      if (topicId) {
+        this.filterForm.get('subtopicId')?.enable({ emitEvent: false });
+        this.topicService.getSubtopicsByTopic(topicId).subscribe(response => {
+          this.subtopics = response.data || [];
+        });
+        this.getNotesByTopic(topicId);
+      } else {
+        this.filterForm.get('subtopicId')?.disable({ emitEvent: false });
+        this.getAllNotes();
+      }
+    });
+
+    this.filterForm.get('subtopicId')?.valueChanges.subscribe(subtopicId => {
+      if (subtopicId) {
+        this.getNotesBySubtopic(subtopicId);
+      } else if (this.filterForm.get('topicId')?.value) {
+        this.getNotesByTopic(this.filterForm.get('topicId')?.value);
+      }
+    });
+  }
+
+  getAllNotes() {
+    this.isLoading = true;
+    this.notesService.getAllNotes().subscribe(response => this.handleNoteResponse(response));
+  }
+
+  getNotesByTopic(topicId: string) {
+    this.isLoading = true;
+    this.notesService.getNotesByTopic(topicId).subscribe(response => this.handleNoteResponse(response));
+  }
+
+  getNotesBySubtopic(subtopicId: string) {
+    this.isLoading = true;
+    this.notesService.getNotesBySubtopic(subtopicId).subscribe(response => this.handleNoteResponse(response));
+  }
+
+  handleNoteResponse(response: any) {
+    this.isLoading = false;
+    this.dataSource = new MatTableDataSource(response.data || []);
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
   onSearch(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  /**
-   * Placeholder for the delete functionality.
-   */
   deleteItem(row: Note) {
+    // Implement your delete logic here
     console.log('Deleting note:', row);
-    // this.notesService.deleteNote(row._id).subscribe(...)
   }
 
-  /**
-   * Opens the dialog to create a new note.
-   */
   openCreateDialog(): void {
-    const dialogRef = this.dialog.open(CreateNotesDialogComponent, {
-      // Remove the width property
-      // width: '800px',
-
-      // Add these properties to make it full screen
-      maxWidth: '100vw',
-      maxHeight: '100vh',
-      height: '100%',
-      width: '100%',
-      panelClass: 'full-screen-dialog' // Custom class for true full screen
-    });
-
+    const dialogRef = this.dialog.open(CreateNotesDialogComponent, { width: '800px' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // If the dialog returns a result, refresh the table to show the new note
         this.refresh();
       }
     });
   }
 
-  /**
-   * Reloads the data for the table.
-   */
   refresh() {
+    this.filterForm.reset({ topicId: '', subtopicId: { value: '', disabled: true } });
     this.getAllNotes();
+  }
+
+  viewNote(note: any): void {
+    this.dialog.open(NoteDetailsComponent, {
+      width: '600px',
+      data: note
+    });
   }
 }

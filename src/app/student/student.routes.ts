@@ -5,6 +5,7 @@ import { TopicComponent } from './topic/topic.component';
 
 import { NotesComponent } from './notes/notes.component';
 import { SubtopicComponent } from './topic/subtopic/subtopic.component';
+import { DeadlineComponent } from './deadline/deadline.component';
 
 
 export const STUDENT_ROUTE: Route[] = [
@@ -28,5 +29,13 @@ export const STUDENT_ROUTE: Route[] = [
     path: 'notes',
     component: NotesComponent,
   },
+  {
+    path: 'deadline',
+    component: DeadlineComponent,
+  },
+  // {
+  //   path: 'deadline',
+  //   component: ,
+  // },
   { path: '**', component: Page404Component },
 ];

@@ -40,16 +40,21 @@
               <quill-editor
                 formControlName="content"
                 [modules]="quillEditorModules"
-                placeholder="Write your notes here, add code blocks, and more...">
+                placeholder="Write your notes here..."
+                (onContentChanged)="onContentChanged($event)">
               </quill-editor>
             </div>
+            <div class="text-danger" *ngIf="noteForm.get('content')?.invalid && noteForm.get('content')?.touched">
+              Content is required.
+            </div>
           </div>
+        
         </div>
       </div>
   
       <div mat-dialog-actions class="modal-actions">
         <button mat-flat-button color="warn" type="button" (click)="onCancel()">Cancel</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="!noteForm.valid">Save Note</button>
+        <button mat-flat-button color="primary" type="submit" >Save Note</button>
       </div>
     </form>
   </div>

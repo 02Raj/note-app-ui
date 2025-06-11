@@ -1,0 +1,26 @@
+<div class="addContainer">
+    <div class="modalHeader">
+      <div class="modalTitle">{{ note.title }}</div>
+      <button mat-icon-button (click)="onCancel()" class="modal-close-button" type="button">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  
+    <div mat-dialog-content>
+      <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+          <div class="quill-container-readonly">
+            <quill-editor
+            [ngModel]="note.content"
+            [modules]="quillEditorModules"
+            [readOnly]="true">
+          </quill-editor>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div mat-dialog-actions class="modal-actions">
+      <button mat-flat-button color="primary" type="button" (click)="onCancel()">Close</button>
+    </div>
+  </div>

@@ -11,7 +11,7 @@ export interface NotePayload {
   title: string;
   content: string;
   topicId: string;
-  subtopicId?: string; // Optional, as a note might only belong to a topic
+  subtopicId?: string// Optional, as a note might only belong to a topic; 
 }
 
 @Injectable({
@@ -61,5 +61,13 @@ export class NotesService {
    */
   deleteNote(id: string): Observable<any> {
     return this.http.delete(`${this.noteApiUrl}/${id}`);
+  }
+
+  /**
+   * Gets a single note by its ID.
+   * @param id - The ID of the note to retrieve.
+   */
+  getNoteById(id: string): Observable<any> {
+    return this.http.get(`${this.noteApiUrl}/${id}`);
   }
 }
