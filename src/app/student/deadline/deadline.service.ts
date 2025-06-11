@@ -42,7 +42,7 @@ export class DeadlineService {
    * Update the status of a deadline
    */
   updateStatus(id: string, status: 'pending' | 'completed' | 'missed'): Observable<Deadline> {
-    return this.http.put<ApiResponse<Deadline>>(`${this.apiUrl}/${id}/status`, { status }).pipe(
+    return this.http.patch<ApiResponse<Deadline>>(`${this.apiUrl}/${id}/status`, { status }).pipe(
       map(response => response.data)
     );
   }

@@ -11,18 +11,23 @@ export interface NotePayload {
   title: string;
   content: string;
   topicId: string;
-  subtopicId?: string// Optional, as a note might only belong to a topic; 
+  subtopicId?: string; // Optional, as a note might only belong to a topic
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotesService {
-  // Set the full base URL for the notes API endpoint
+  // Base URLs for the different API endpoints
   private noteApiUrl = `${environment.apiUrl}/notes`;
+  private revisionApiUrl = `${environment.apiUrl}/revisions`; // URL for revision endpoints
 
   // Inject HttpClient to make API requests
   constructor(private http: HttpClient) { }
+
+  // ======================================================
+  // CRUD Operations for Notes
+  // ======================================================
 
   /**
    * Creates a new note.
@@ -69,5 +74,28 @@ export class NotesService {
    */
   getNoteById(id: string): Observable<any> {
     return this.http.get(`${this.noteApiUrl}/${id}`);
+  }
+
+  // ======================================================
+  // Revision System Methods
+  // ======================================================
+
+  /**
+   * Gets all notes that are currently due for revision.
+   * Corresponds to the `getDueNotes` controller.
+   */
+  getDueRevisionNotes(): Observable<any> {
+    // The endpoint is /due, so the full path is /api/revisions/due
+    return this.http.get(`${this.revisionApiUrl}/due`);
+  }
+
+  /**
+   * Marks a note as revised.
+   * This now sends a POST request to the correct endpoint.
+   * @param noteId - The ID of the note to mark as revised.
+   */
+  markNoteAsRevised(noteId: string): Observable<any> {
+    // Corrected to send a POST request to /revisions/:id/complete
+    return this.http.post(`${this.revisionApiUrl}/${noteId}/complete`, {});
   }
 }

@@ -1,115 +1,103 @@
 <section class="content">
-    <div class="content-block">
-      @for (breadscrum of breadscrums; track breadscrum) {
-        <div class="block-header">
-          <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items" [active_item]="breadscrum.active"></app-breadcrumb>
-        </div>
-      }
-      <div class="row">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-          <div class="card">
-            <div class="materialTableHeader">
-              <div class="left">
-                <ul class="header-buttons-left ms-0">
-                  <li class="tbl-title">
-                    <h2>Deadlines</h2>
-                  </li>
-                  <li class="tbl-search-box">
-                    <label for="search-input"><i class="material-icons search-icon">search</i></label>
-                    <input placeholder="Search Deadlines" type="text" (input)="onSearch($event)" class="browser-default search-field" aria-label="Search box">
-                  </li>
-                </ul>
-              </div>
-              <div class="right">
-                <ul class="tbl-export-btn">
-                  <li class="tbl-header-btn">
-                    <div class="m-l-10">
-                      <button mat-icon-button (click)="openCreateDialog()" class="col-green" matTooltip="Create Deadline">
-                        <mat-icon>add_circle_outline</mat-icon>
-                      </button>
-                    </div>
-                  </li>
-                  <li class="tbl-header-btn">
-                    <div class="m-l-10">
-                      <button mat-icon-button (click)="refresh()" matTooltip="Refresh">
-                        <mat-icon>refresh</mat-icon>
-                      </button>
-                    </div>
-                  </li>
-                </ul>
-              </div>
+  <div class="content-block">
+    <!-- Breadcrumb and other headers -->
+    @for (breadscrum of breadscrums; track breadscrum) {
+    <div class="block-header">
+      <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items" [active_item]="breadscrum.active"></app-breadcrumb>
+    </div>
+    }
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="materialTableHeader">
+            <div class="left">
+              <ul class="header-buttons-left ms-0">
+                <li class="tbl-title"><h2>Deadlines</h2></li>
+                <li class="tbl-search-box">
+                  <label for="search-input"><i class="material-icons search-icon">search</i></label>
+                  <input placeholder="Search Deadlines" type="text" (input)="onSearch($event)" class="browser-default search-field">
+                </li>
+              </ul>
             </div>
-            <div class="body">
-              <div class="table-responsive">
-                @if (isLoading) {
-                  <div class="spinner-container">
-                    <mat-progress-spinner color="primary" [diameter]="40" mode="indeterminate"></mat-progress-spinner>
+            <div class="right">
+              <ul class="tbl-export-btn">
+                <li class="tbl-header-btn">
+                  <!-- Button now calls openDeadlineDialog without arguments to create -->
+                  <button mat-icon-button (click)="openDeadlineDialog()" class="col-green" matTooltip="Create Deadline">
+                    <mat-icon>add_circle_outline</mat-icon>
+                  </button>
+                </li>
+                 <li class="tbl-header-btn">
+                  <div class="m-l-10">
+                    <button mat-icon-button (click)="refresh()" matTooltip="Refresh">
+                      <mat-icon>refresh</mat-icon>
+                    </button>
                   </div>
-                }
-  
-                <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table" [hidden]="isLoading">
-  
-                  <ng-container matColumnDef="title">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header>Title</mat-header-cell>
-                    <mat-cell *matCellDef="let row">
-                      <span class="mobile-label">Title:</span>
-                      {{ row.title }}
-                    </mat-cell>
-                  </ng-container>
-  
-                  <ng-container matColumnDef="topic">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header>Topic</mat-header-cell>
-                    <mat-cell *matCellDef="let row">
-                      <span class="mobile-label">Topic:</span>
-                      {{ row.topicId?.name || 'N/A' }}
-                    </mat-cell>
-                  </ng-container>
-  
-                  <ng-container matColumnDef="dueDate">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</mat-header-cell>
-                    <mat-cell *matCellDef="let row">
-                      <span class="mobile-label">Due Date:</span>
-                      {{ row.dueDate | date: 'MMM d, y' }}
-                    </mat-cell>
-                  </ng-container>
-  
-                  <ng-container matColumnDef="status">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header>Status</mat-header-cell>
-                    <mat-cell *matCellDef="let row">
-                      <span class="mobile-label">Status:</span>
-                      <mat-form-field class="status-select-field" appearance="outline">
-                        <mat-select [value]="row.status" (selectionChange)="updateStatus(row, $event.value)">
-                          <mat-option value="pending">Pending</mat-option>
-                          <mat-option value="completed">Completed</mat-option>
-                          <mat-option value="missed">Missed</mat-option>
-                        </mat-select>
-                      </mat-form-field>
-                    </mat-cell>
-                  </ng-container>
-  
-                  <ng-container matColumnDef="actions">
-                    <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
-                    <mat-cell *matCellDef="let row" class="center-align">
-                      <button mat-icon-button color="warn" (click)="$event.stopPropagation(); deleteItem(row)" class="tbl-action-btn" matTooltip="Delete">
-                        <mat-icon>delete_outline</mat-icon>
-                      </button>
-                    </mat-cell>
-                  </ng-container>
-  
-                  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-                  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-  
-                  <tr class="mat-row" *matNoDataRow>
-                    <td class="mat-cell" [attr.colspan]="displayedColumns.length">No deadlines found.</td>
-                  </tr>
-                </table>
-  
-                <mat-paginator #paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons aria-label="Select page of deadlines"></mat-paginator>
-  
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="body">
+            <div class="table-responsive">
+              @if (isLoading) {
+              <div class="spinner-container">
+                <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
               </div>
+              }
+              <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table" [hidden]="isLoading">
+
+                <!-- Title Column -->
+                <ng-container matColumnDef="title">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Title</mat-header-cell>
+                  <mat-cell *matCellDef="let row">{{ row.title }}</mat-cell>
+                </ng-container>
+
+                <!-- Topic Column -->
+                <ng-container matColumnDef="topic">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Topic</mat-header-cell>
+                  <mat-cell *matCellDef="let row">{{ row.topicId?.name || 'N/A' }}</mat-cell>
+                </ng-container>
+
+                <!-- Due Date Column -->
+                <ng-container matColumnDef="dueDate">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</mat-header-cell>
+                  <mat-cell *matCellDef="let row">{{ row.dueDate | date: 'MMM d, y' }}</mat-cell>
+                </ng-container>
+                
+                <!-- Status Column (with colored badges) -->
+                <ng-container matColumnDef="status">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Status</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <span class="badge" [ngClass]="{
+                      'badge-solid-green': row.status === 'completed',
+                      'badge-solid-orange': row.status === 'pending',
+                      'badge-solid-red': row.status === 'missed'
+                    }">
+                      {{ row.status | titlecase }}
+                    </span>
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
+                  <mat-cell *matCellDef="let row" class="center-align">
+                    <button mat-icon-button color="warn" (click)="$event.stopPropagation(); deleteItem(row)" matTooltip="Delete">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <!-- Row click calls openDeadlineDialog WITH the row data to edit -->
+                <mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openDeadlineDialog(row)" class="clickable-row"></mat-row>
+                <tr class="mat-row" *matNoDataRow><td class="mat-cell" [attr.colspan]="displayedColumns.length">No deadlines found.</td></tr>
+              </table>
+              <mat-paginator #paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>

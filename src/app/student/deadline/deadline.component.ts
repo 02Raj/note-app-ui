@@ -87,11 +87,14 @@ export class DeadlineComponent {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  openCreateDialog(): void {
-    // You need to create this dialog component separately
-    
-    const dialogRef = this.dialog.open(DeadlinedialogComponent, { width: '800px' });
+openDeadlineDialog(deadline?: Deadline): void {
+    const dialogRef = this.dialog.open(DeadlinedialogComponent, {
+      width: '800px',
+      data: deadline // Pass the deadline object if editing, otherwise it's undefined
+    });
+
     dialogRef.afterClosed().subscribe(result => {
+      // If the dialog returned a result, it means something was created or updated
       if (result) {
         this.refresh();
       }

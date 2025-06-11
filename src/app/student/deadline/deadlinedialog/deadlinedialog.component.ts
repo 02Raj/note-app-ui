@@ -13,6 +13,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { DeadlineService } from '../deadline.service';
 import { TopicService } from 'app/student/topic/topic.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Observable } from 'rxjs';
 
 // Custom Services and Models
 
@@ -39,14 +40,21 @@ export class DeadlinedialogComponent {
   topics: any[] = [];
   subtopics: any[] = [];
   isLoading = false;
+  isEditMode = false;
 
   constructor(
     public dialogRef: MatDialogRef<DeadlinedialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private fb: FormBuilder,
     private deadlineService: DeadlineService,
-    private topicService: TopicService, // Using TopicService for both
+    private topicService: TopicService,
   ) {
+    // Check if data is passed for editing
+    if (this.data && this.data._id) {
+      this.isEditMode = true;
+      this.dialogTitle = 'Edit Deadline';
+    }
+
     this.deadlineForm = this.fb.group({
       title: ['', [Validators.required]],
       dueDate: ['', [Validators.required]],
@@ -54,12 +62,23 @@ export class DeadlinedialogComponent {
       subtopicId: [null]
     });
 
+    // Disable subtopic until a topic is selected
     this.deadlineForm.get('subtopicId')?.disable();
   }
 
   ngOnInit(): void {
     this.loadTopics();
     this.onTopicChange();
+
+    // If in edit mode, populate the form
+    if (this.isEditMode) {
+      this.deadlineForm.patchValue({
+        title: this.data.title,
+        dueDate: this.data.dueDate,
+        topicId: this.data.topicId?._id, // Bind the topic ID
+        // subtopicId will be patched after subtopics are loaded
+      });
+    }
   }
 
   loadTopics(): void {
@@ -74,16 +93,17 @@ export class DeadlinedialogComponent {
     this.deadlineForm.get('topicId')?.valueChanges.subscribe(topicId => {
       const subtopicControl = this.deadlineForm.get('subtopicId');
       subtopicControl?.reset();
-      this.subtopics = []; // Clear previous subtopics
+      this.subtopics = [];
 
       if (topicId) {
         subtopicControl?.enable();
-        // Assuming your TopicService has a method to get subtopics for a specific topic
         this.topicService.getSubtopicsByTopic(topicId).subscribe((response: any) => {
-          // **FIX APPLIED HERE**
-          // Extract the .data array from the response object
           if (response && response.data) {
             this.subtopics = response.data;
+            // If in edit mode, patch the subtopic value after they have been loaded
+            if (this.isEditMode && this.data.subtopicId) {
+              subtopicControl?.patchValue(this.data.subtopicId);
+            }
           }
         });
       } else {
@@ -92,7 +112,7 @@ export class DeadlinedialogComponent {
     });
   }
 
-  onSave(): void {
+ onSave(): void {
     if (this.deadlineForm.invalid) {
       this.deadlineForm.markAllAsTouched();
       return;
@@ -110,6 +130,23 @@ export class DeadlinedialogComponent {
         this.isLoading = false;
         console.error("Error creating deadline:", err);
       }
+    });
+  }
+
+
+  onMarkAsCompleted(): void {
+    if (!this.isEditMode) return;
+
+    this.isLoading = true;
+    this.deadlineService.updateStatus(this.data._id, 'completed').subscribe({
+        next: (response) => {
+            this.isLoading = false;
+            this.dialogRef.close(response); // Close dialog and return updated data
+        },
+        error: (err) => {
+            this.isLoading = false;
+            console.error("Error updating status:", err);
+        }
     });
   }
 

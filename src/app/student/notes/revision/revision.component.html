@@ -1,0 +1,116 @@
+<section class="content">
+  <div class="content-block">
+    @for (breadscrum of breadscrums; track breadscrum) {
+      <div class="block-header">
+        <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items" [active_item]="breadscrum.active">
+        </app-breadcrumb>
+      </div>
+    }
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+          <div class="materialTableHeader">
+            <div class="left">
+              <ul class="header-buttons-left ms-0">
+                <li class="tbl-title">
+                  <h2>Due for Revision</h2>
+                </li>
+                <li class="tbl-search-box">
+                  <label for="search-input"><i class="material-icons search-icon">search</i></label>
+                  <input placeholder="Search" type="text" (input)="onSearch($event)"
+                    class="browser-default search-field" aria-label="Search box">
+                </li>
+              </ul>
+            </div>
+            <div class="right">
+              <ul class="tbl-export-btn">
+                <li class="tbl-header-btn">
+                  <div class="m-l-10">
+                    <button mat-icon-button (click)="refresh()" matTooltip="Refresh">
+                      <mat-icon>refresh</mat-icon>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="body">
+            <div class="table-responsive">
+              @if (isLoading) {
+                <div class="spinner-container">
+                  <mat-progress-spinner color="primary" [diameter]="40" mode="indeterminate">
+                  </mat-progress-spinner>
+                </div>
+              }
+
+              <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table" [hidden]="isLoading">
+
+                <!-- Title Column -->
+                <ng-container matColumnDef="title">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Title</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <span class="mobile-label">Title:</span>
+                    <span class="truncate-text">{{ row.title }}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Topic Column -->
+                <ng-container matColumnDef="topicName">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Topic</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <span class="mobile-label">Topic:</span>
+                    {{ row.topicName }}
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Revision Stage Column -->
+                <ng-container matColumnDef="revisionStage">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Revision Stage</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <span class="mobile-label">Revision Stage:</span>
+                    <span class="badge badge-solid-blue">Stage {{ row.revisionStage }}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Due Date Column -->
+                <ng-container matColumnDef="revisionDueDate">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <span class="mobile-label">Due Date:</span>
+                    {{ row.revisionDueDate | date: 'mediumDate' }}
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
+                  <mat-cell *matCellDef="let row" class="center-align">
+                    <button mat-icon-button color="accent" (click)="$event.stopPropagation(); deleteItem(row)"
+                      class="tbl-action-btn" matTooltip="Delete">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <mat-row 
+                  *matRowDef="let row; columns: displayedColumns;"
+                  (click)="viewNote(row)"
+                  class="clickable-row">
+                </mat-row>
+
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell" colspan="5">You have no notes due for revision today!</td>
+                </tr>
+              </table>
+
+              <mat-paginator #paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons>
+              </mat-paginator>
+
+            </div> 
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

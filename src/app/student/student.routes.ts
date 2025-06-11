@@ -6,6 +6,7 @@ import { TopicComponent } from './topic/topic.component';
 import { NotesComponent } from './notes/notes.component';
 import { SubtopicComponent } from './topic/subtopic/subtopic.component';
 import { DeadlineComponent } from './deadline/deadline.component';
+import { RevisionComponent } from './notes/revision/revision.component';
 
 
 export const STUDENT_ROUTE: Route[] = [
@@ -33,9 +34,9 @@ export const STUDENT_ROUTE: Route[] = [
     path: 'deadline',
     component: DeadlineComponent,
   },
-  // {
-  //   path: 'deadline',
-  //   component: ,
-  // },
+  {
+    path: 'due-revision',
+    component: RevisionComponent,
+  },
   { path: '**', component: Page404Component },
 ];

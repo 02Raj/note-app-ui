@@ -1,26 +1,36 @@
 <div class="addContainer">
-    <div class="modalHeader">
-      <div class="modalTitle">{{ note.title }}</div>
-      <button mat-icon-button (click)="onCancel()" class="modal-close-button" type="button">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-  
-    <div mat-dialog-content>
-      <div class="row">
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
-          <div class="quill-container-readonly">
-            <quill-editor
+  <div class="modalHeader">
+    <div class="modalTitle">{{ note.title }}</div>
+    <button mat-icon-button (click)="onCancel()" class="modal-close-button" type="button" [disabled]="isLoading">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div mat-dialog-content>
+    <div class="row">
+      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+        <div class="quill-container-readonly">
+          <quill-editor
             [ngModel]="note.content"
             [modules]="quillEditorModules"
             [readOnly]="true">
           </quill-editor>
-          </div>
         </div>
       </div>
     </div>
-  
-    <div mat-dialog-actions class="modal-actions">
-      <button mat-flat-button color="primary" type="button" (click)="onCancel()">Close</button>
-    </div>
   </div>
+
+  <div mat-dialog-actions class="modal-actions">
+    <!-- Close button for general viewing -->
+    <button mat-stroked-button color="warn" type="button" (click)="onCancel()" [disabled]="isLoading">Close</button>
+    
+    <!-- "Revision Complete" button -->
+    <button mat-flat-button color="primary" type="button" (click)="onRevisionComplete()" [disabled]="isLoading">
+        @if (isLoading) {
+          <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+        } @else {
+          <span>Revision Complete</span>
+        }
+    </button>
+  </div>
+</div>

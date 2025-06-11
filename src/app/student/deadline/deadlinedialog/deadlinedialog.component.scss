@@ -1,0 +1,12 @@
+// In deadlinedialog.component.scss
+
+.green-button {
+  // Sets the border and text color to a nice green
+  color: #4CAF50 !important;
+  border-color: #4CAF50 !important;
+
+  // Optional: Adds a light green background on hover for better user experience
+  &:hover {
+    background-color: rgba(76, 175, 80, 0.05);
+  }
+}

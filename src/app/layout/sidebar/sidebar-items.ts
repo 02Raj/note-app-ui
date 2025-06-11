@@ -157,6 +157,18 @@ export const ROUTES: RouteInfo[] = [
         submenu: [],
       },
       {
+        path: '/student/due-revision',
+        title: 'Revision',
+        iconType: '',
+        icon: '',
+        class: 'ml-menu',
+        groupTitle: false,
+        badge: '',
+        badgeClass: '',
+        role: [''],
+        submenu: [],
+      },
+        {
         path: '/student/notes',
         title: 'Notes',
         iconType: '',
