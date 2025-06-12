@@ -1,0 +1,108 @@
+<section class="content">
+    <div class="content-block">
+      <!-- Breadcrumb -->
+      @for (breadscrum of breadscrums; track breadscrum) {
+        <div class="block-header">
+          <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items" [active_item]="breadscrum.active"></app-breadcrumb>
+        </div>
+      }
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="materialTableHeader">
+              <div class="left">
+                <ul class="header-buttons-left ms-0">
+                  <li class="tbl-title">
+                    <h2>Resources</h2>
+                  </li>
+                  <!-- Filter ko header ke andar hi rakha gaya hai -->
+                  <li class="tbl-search-box">
+                    <mat-form-field appearance="outline" class="topic-filter-header">
+                      <mat-label>Filter by Topic</mat-label>
+                      <mat-select [formControl]="selectedTopic">
+                        @for(topic of allTopics; track topic._id) {
+                          <mat-option [value]="topic._id">{{ topic.name }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </li>
+                </ul>
+              </div>
+              <div class="right">
+                <ul class="tbl-export-btn">
+                  <li class="tbl-header-btn">
+                    <button mat-icon-button (click)="openUploadDialog()" class="col-green" matTooltip="Upload New Resource">
+                      <mat-icon>add_circle_outline</mat-icon>
+                    </button>
+                  </li>
+                  <li class="tbl-header-btn">
+                    <div class="m-l-10">
+                      <button mat-icon-button (click)="refresh()" matTooltip="Refresh">
+                        <mat-icon>refresh</mat-icon>
+                      </button>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="body">
+              <div class="table-responsive">
+                @if (isLoading) {
+                  <div class="spinner-container">
+                    <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+                  </div>
+                }
+                <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table" [hidden]="isLoading">
+  
+                  <!-- Name Column -->
+                  <ng-container matColumnDef="name">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>File Name</mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                      <a [href]="row.url" target="_blank" class="file-link">
+                        {{ row.name }}
+                      </a>
+                    </mat-cell>
+                  </ng-container>
+  
+                  <!-- File Type Column -->
+                  <ng-container matColumnDef="fileType">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>Type</mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                      <mat-icon [matTooltip]="row.fileType" class="file-type-icon">{{ getFileIcon(row.fileType) }}</mat-icon>
+                    </mat-cell>
+                  </ng-container>
+  
+                  <!-- Uploaded At Column -->
+                  <ng-container matColumnDef="createdAt">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>Uploaded On</mat-header-cell>
+                    <mat-cell *matCellDef="let row">{{ row.createdAt | date: 'MMM d, y' }}</mat-cell>
+                  </ng-container>
+                  
+                  <!-- Actions Column -->
+                  <ng-container matColumnDef="actions">
+                    <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
+                    <mat-cell *matCellDef="let row" class="center-align">
+                      <!-- 'href' ab naye function se aa raha hai -->
+                      <a mat-icon-button color="primary" [href]="getViewableUrl(row)" target="_blank" matTooltip="View/Download">
+                        <mat-icon>visibility</mat-icon>
+                      </a>
+                      <button mat-icon-button color="warn" (click)="deleteItem(row)" matTooltip="Delete">
+                        <mat-icon>delete_outline</mat-icon>
+                      </button>
+                    </mat-cell>
+                  </ng-container>
+  
+                  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                  <tr class="mat-row" *matNoDataRow><td class="mat-cell" [attr.colspan]="displayedColumns.length">No resources found for this topic.</td></tr>
+                </table>
+                <mat-paginator #paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  

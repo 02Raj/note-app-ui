@@ -7,6 +7,8 @@ import { NotesComponent } from './notes/notes.component';
 import { SubtopicComponent } from './topic/subtopic/subtopic.component';
 import { DeadlineComponent } from './deadline/deadline.component';
 import { RevisionComponent } from './notes/revision/revision.component';
+import { MockInterviewComponent } from './mock-interview/mock-interview.component';
+import { ResoursesComponent } from './resourses/resourses.component';
 
 
 export const STUDENT_ROUTE: Route[] = [
@@ -37,6 +39,14 @@ export const STUDENT_ROUTE: Route[] = [
   {
     path: 'due-revision',
     component: RevisionComponent,
+  },
+  {
+    path: 'mock-interview',
+    component: MockInterviewComponent,
+  },
+  {
+    path: 'resources',
+    component: ResoursesComponent,
   },
   { path: '**', component: Page404Component },
 ];

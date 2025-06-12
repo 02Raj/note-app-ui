@@ -1,0 +1,185 @@
+<section class="content">
+    <div class="content-block">
+      <div class="block-header">
+        @for (breadscrum of breadscrums; track breadscrum) {
+        <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items" [active_item]="breadscrum.active">
+        </app-breadcrumb>
+        }
+      </div>
+  
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <div class="card">
+            <div class="body">
+  
+              @if (isLoading && interviewState !== 'in_progress') {
+              <div class="spinner-container">
+                <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+              </div>
+              }
+  
+              <div [hidden]="isLoading && interviewState !== 'in_progress'">
+  
+                <!-- STEP 1: SETUP FORM (No changes) -->
+                @if (interviewState === 'setup') {
+                  <div class="setup-container">
+                      <h3>Start Your Mock Interview</h3>
+                      <p class="text-muted">First, choose your preferred interview style.</p>
+                      <mat-button-toggle-group [(ngModel)]="interviewMode" class="my-4" aria-label="Interview Mode">
+                        <mat-button-toggle value="voice"><mat-icon>mic</mat-icon> Voice Interview</mat-button-toggle>
+                        <mat-button-toggle value="text"><mat-icon>chat</mat-icon> Text (Chat) Interview</mat-button-toggle>
+                      </mat-button-toggle-group>
+                      <form [formGroup]="setupForm" (ngSubmit)="onStartInterview()" class="mt-2">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                              <mat-label>Job Role / Profile</mat-label>
+                              <input matInput formControlName="jobProfile" placeholder="e.g., 'MERN Stack Developer'">
+                            </mat-form-field>
+                          </div>
+                          <div class="col-md-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                              <mat-label>Your Experience Level</mat-label>
+                              <mat-select formControlName="experience">
+                                <mat-option value="Fresher">Fresher</mat-option>
+                                <mat-option value="1-3 years">1-3 Years</mat-option>
+                                <mat-option value="3+ years">3+ Years</mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                              <mat-label>Topics (Type and press Enter to add)</mat-label>
+                              <mat-chip-grid #chipGrid>
+                                @for (topic of topics; track topic) {
+                                  <mat-chip-row (removed)="remove(topic)">
+                                    {{topic}}
+                                    <button matChipRemove><mat-icon>cancel</mat-icon></button>
+                                  </mat-chip-row>
+                                }
+                              </mat-chip-grid>
+                              <input placeholder="New topic..." #topicInput [formControl]="topicCtrl"
+                                [matAutocomplete]="auto" [matChipInputFor]="chipGrid"
+                                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                (matChipInputTokenEnd)="add($event)">
+                              <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+                                @for (topic of filteredTopics | async; track topic) {
+                                  <mat-option [value]="topic">{{topic}}</mat-option>
+                                }
+                              </mat-autocomplete>
+                            </mat-form-field>
+                          </div>
+                        </div>
+                        <div class="text-center mt-3">
+                          <button mat-raised-button color="primary" type="submit" [disabled]="setupForm.invalid">Start Interview</button>
+                        </div>
+                      </form>
+                  </div>
+                }
+  
+                <!-- STEP 2: INTERVIEW IN PROGRESS (No changes) -->
+                @if (interviewState === 'in_progress' && sessionData) {
+                  <!-- Your existing interview UI code here... -->
+                }
+  
+                <!-- STEP 3: GENERATING FEEDBACK (No changes) -->
+                @if (interviewState === 'generating_feedback') {
+                  <div class="text-center py-5">
+                    <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+                    <h4 class="mt-3">Excellent!</h4>
+                    <p>Generating detailed feedback for you...</p>
+                  </div>
+                }
+  
+                <!-- ========================================================== -->
+                <!-- STEP 4: FINAL REPORT (ENHANCED AND STYLED) -->
+                <!-- ========================================================== -->
+                @if (interviewState === 'completed' && finalReport) {
+                  <div class="report-container">
+                    <h3 class="report-title">Your Interview Performance Report</h3>
+                    
+                    <!-- Overall Summary Card -->
+                    <mat-card class="mt-3 mb-4 overall-summary-card">
+                      <mat-card-header>
+                        <mat-card-title>
+                          <div class="d-flex align-items-center">
+                            <mat-icon>assessment</mat-icon>
+                            <span class="ms-2">Overall Summary & Advice</span>
+                          </div>
+                        </mat-card-title>
+                      </mat-card-header>
+                      <mat-card-content>
+                        <p>{{ finalReport.feedback.overallSummary }}</p>
+                      </mat-card-content>
+                    </mat-card>
+  
+                    <h4 class="analysis-title">Detailed Question Analysis</h4>
+  
+                    <!-- Loop for each question's feedback -->
+                    @for (item of finalReport.feedback.detailedFeedback; track item) {
+                      <mat-card class="mt-3 question-feedback-card">
+                        <mat-card-content>
+                          <div class="question-answer-block">
+                            <p><strong>Question:</strong> {{ item.questionText }}</p>
+                            <p><strong>Your Answer:</strong> <span [innerHTML]="item.userAnswer | safeHtml"></span></p>
+                          </div>
+                          <hr>
+                          <div class="feedback-grid">
+                            <!-- Strengths Block -->
+                            <div class="feedback-block strengths-block">
+                              <div class="feedback-header">
+                                <mat-icon class="feedback-icon">thumb_up</mat-icon>
+                                <h5>Strengths</h5>
+                              </div>
+                              <ul>
+                                @for(strength of item.strengths; track strength) {
+                                  <li>{{strength}}</li>
+                                }
+                              </ul>
+                            </div>
+                            
+                            <!-- Areas for Improvement Block -->
+                            <div class="feedback-block improvements-block">
+                              <div class="feedback-header">
+                                <mat-icon class="feedback-icon">lightbulb</mat-icon>
+                                <h5>Areas for Improvement</h5>
+                              </div>
+                              <ul>
+                                @for(improvement of item.areasForImprovement; track improvement) {
+                                  <li>{{improvement}}</li>
+                                }
+                              </ul>
+                            </div>
+                          </div>
+  
+                          <!-- Suggested Answer Block -->
+                          @if(item.suggestedAnswer) {
+                            <div class="feedback-block answer-block mt-3">
+                              <div class="feedback-header">
+                                 <mat-icon class="feedback-icon">edit_note</mat-icon>
+                                 <h5>Suggested Answer</h5>
+                              </div>
+                              <p [innerHTML]="item.suggestedAnswer | safeHtml"></p>
+                            </div>
+                          }
+                        </mat-card-content>
+                      </mat-card>
+                    }
+                  </div>
+                }
+  
+                @if (errorMessage) {
+                  <div class="error-message text-danger text-center mt-3">
+                    {{ errorMessage }}
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  

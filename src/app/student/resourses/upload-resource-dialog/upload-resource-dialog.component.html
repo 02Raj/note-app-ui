@@ -1,0 +1,52 @@
+<div class="addContainer">
+    <div class="modalHeader">
+      <div class="modalTitle">
+        Upload New Resource
+      </div>
+      <button mat-icon-button (click)="onNoClick()" class="modal-close-button" aria-label="Close dialog">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  
+    <form [formGroup]="uploadForm">
+      <div mat-dialog-content class="mat-dialog-content">
+        <div class="row">
+          <!-- Topic Selection Dropdown (Optional) -->
+          <div class="col-12 mb-3">
+            <mat-form-field class="example-full-width" appearance="outline">
+              <mat-label>Select Topic (Optional)</mat-label>
+              <mat-select formControlName="topicId">
+                <!-- Allow user to select no topic -->
+                <mat-option [value]="null">None</mat-option>
+                @for(topic of topics; track topic._id) {
+                  <mat-option [value]="topic._id">{{ topic.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+  
+          <!-- File Upload Section -->
+          <div class="col-12 mb-2">
+            <button mat-stroked-button color="primary" class="file-upload-button" (click)="fileInput.click()">
+              <mat-icon>attach_file</mat-icon>
+              Choose File
+            </button>
+            <input hidden type="file" (change)="onFileSelected($event)" #fileInput>
+            
+            @if (fileName) {
+              <div class="file-name-display">
+                <mat-icon>description</mat-icon>
+                <span>{{ fileName }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+  
+      <div mat-dialog-actions class="modal-actions">
+        <button mat-flat-button color="primary" [disabled]="!uploadForm.valid" (click)="onUpload()">Upload</button>
+        <button mat-flat-button color="warn" (click)="onNoClick()">Cancel</button>
+      </div>
+    </form>
+  </div>
+  
