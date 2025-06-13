@@ -35,3 +35,93 @@
     padding: 10px;
     margin-top: 20px;
 }
+
+// General Styles
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+mat-card {
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
+}
+
+mat-card-title h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-icon {
+    vertical-align: middle;
+}
+
+// Welcome Card
+.welcome-card {
+    background: linear-gradient(to right, #654ea3, #eaafc8);
+    color: white;
+    margin-bottom: 24px;
+    h3 {
+        font-weight: 600;
+    }
+}
+
+// Stat Cards (info-box-4)
+.info-box-4 {
+    border-radius: 10px;
+    box-shadow: none;
+    border: 1px solid #e0e0e0;
+    .icon {
+        width: 60px;
+        height: 60px;
+        mat-icon {
+            font-size: 32px;
+            line-height: 60px;
+        }
+    }
+    .content {
+        .text {
+            color: #6c757d;
+        }
+        .number {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+    }
+}
+
+// Chart Container
+.chart-container {
+    height: 300px; // Give a fixed height for consistency
+    position: relative;
+}
+
+// Actionable Lists
+.list-subtitle {
+    font-weight: 500;
+    color: #444;
+    padding: 8px 0;
+    font-size: 1rem;
+}
+
+.empty-list-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    color: #9e9e9e;
+
+    mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 8px;
+    }
+}

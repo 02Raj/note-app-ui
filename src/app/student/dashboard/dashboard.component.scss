@@ -1,0 +1,43 @@
+stat-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.07);
+}
+.stat-card .icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+.stat-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+.stat-card .label {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+.chart-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+}
+.chart-card .header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #334155;
+}

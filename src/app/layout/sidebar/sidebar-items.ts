@@ -209,7 +209,7 @@ export const ROUTES: RouteInfo[] = [
         submenu: [],
       }, 
         {
-        path: '/student/progress',
+        path: '/student/progress-tracker',
         title: 'Progress Tracker',
         iconType: '',
         icon: '',

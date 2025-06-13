@@ -8,23 +8,27 @@
       }
       <div class="row">
         <div class="col-lg-12">
+          <!-- Topic Filter Card -->
+          <div class="card mb-3">
+            <div class="card-body p-3">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Filter Resources by Topic</mat-label>
+                <mat-select [formControl]="selectedTopic">
+                  @for(topic of allTopics; track topic._id) {
+                    <mat-option [value]="topic._id">{{ topic.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Resources Table Card -->
           <div class="card">
             <div class="materialTableHeader">
               <div class="left">
                 <ul class="header-buttons-left ms-0">
                   <li class="tbl-title">
                     <h2>Resources</h2>
-                  </li>
-                  <!-- Filter ko header ke andar hi rakha gaya hai -->
-                  <li class="tbl-search-box">
-                    <mat-form-field appearance="outline" class="topic-filter-header">
-                      <mat-label>Filter by Topic</mat-label>
-                      <mat-select [formControl]="selectedTopic">
-                        @for(topic of allTopics; track topic._id) {
-                          <mat-option [value]="topic._id">{{ topic.name }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
                   </li>
                 </ul>
               </div>
@@ -105,4 +109,3 @@
       </div>
     </div>
   </section>
-  

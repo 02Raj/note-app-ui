@@ -15,38 +15,7 @@ export class AuthService {
   public currentUser: Observable<User>;
   private apiUrl = environment.apiUrl + '/auth';// Add API URL
 
-  private users = [
-    {
-      id: 1,
-      img: 'assets/images/user/admin.jpg',
-      username: 'admin@school.org',
-      password: 'admin@123',
-      firstName: 'Sarah',
-      lastName: 'Smith',
-      role: Role.Admin,
-      token: 'admin-token',
-    },
-    {
-      id: 2,
-      img: 'assets/images/user/teacher.jpg',
-      username: 'teacher@school.org',
-      password: 'teacher@123',
-      firstName: 'Ashton',
-      lastName: 'Cox',
-      role: Role.Teacher,
-      token: 'teacher-token',
-    },
-    {
-      id: 3,
-      img: 'assets/images/user/student.jpg',
-      username: 'student@school.org',
-      password: 'student@123',
-      firstName: 'Ashton',
-      lastName: 'Cox',
-      role: Role.Student,
-      token: 'student-token',
-    },
-  ];
+
 
   constructor(private http: HttpClient) {
     this.currentUserSubject = new BehaviorSubject<User>(

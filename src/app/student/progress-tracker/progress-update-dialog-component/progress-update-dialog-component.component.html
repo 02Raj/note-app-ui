@@ -1,0 +1,75 @@
+<div class="addContainer">
+    <!-- Modal Header -->
+    <div class="modalHeader">
+      <div class="modalTitle">{{ dialogTitle }}</div>
+      <button mat-icon-button (click)="onCancel()" class="modal-close-button" type="button" mat-dialog-close>
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  
+    <!-- Form for creating or updating progress -->
+    <form [formGroup]="progressForm" (ngSubmit)="onSave()">
+      <div mat-dialog-content class="mat-dialog-content">
+        <div class="row">
+  
+          <!-- Topic Selection -->
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+            <mat-form-field class="example-full-width" appearance="outline">
+              <mat-label>Topic</mat-label>
+              <mat-select formControlName="topicId" required>
+                <!-- Show a loading option while topics are being fetched -->
+                @if (isTopicsLoading) {
+                  <mat-option disabled>
+                    <mat-spinner [diameter]="20"></mat-spinner> Loading topics...
+                  </mat-option>
+                }
+                <!-- Loop through the loaded topics -->
+                @for (topic of topics; track topic._id) {
+                  <mat-option [value]="topic._id">{{ topic.name }}</mat-option>
+                }
+              </mat-select>
+              <mat-error *ngIf="progressForm.get('topicId')?.hasError('required')">
+                Topic is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+  
+          <!-- Subtopic Selection (Optional) -->
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+            <mat-form-field class="example-full-width" appearance="outline">
+              <mat-label>Subtopic (Optional)</mat-label>
+              <mat-select formControlName="subtopicId">
+                 <!-- Allow clearing the selection -->
+                <mat-option [value]="null">None</mat-option>
+                @if (isSubtopicsLoading) {
+                  <mat-option disabled>
+                    <mat-spinner [diameter]="20"></mat-spinner> Loading subtopics...
+                  </mat-option>
+                }
+                @for (subtopic of subtopics; track subtopic._id) {
+                  <mat-option [value]="subtopic._id">{{ subtopic.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+  
+          <!-- Progress Percentage Slider -->
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+              <mat-label class="progress-label">Progress: {{ progressForm.get('progressPercent')?.value }}%</mat-label>
+              <mat-slider class="w-100" min="0" max="100" step="1" discrete>
+                  <input matSliderThumb formControlName="progressPercent">
+              </mat-slider>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Modal Actions -->
+      <div mat-dialog-actions class="modal-actions">
+        <button mat-flat-button color="warn" type="button" (click)="onCancel()">Cancel</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="!progressForm.valid">
+          {{ data._id ? 'Update Progress' : 'Save Progress' }}
+        </button>
+      </div>
+    </form>
+  </div>
+  

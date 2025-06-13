@@ -84,7 +84,10 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
       const userRole = this.authService.currentUserValue.role;
       this.userFullName =
         this.authService.currentUserValue.name;
-      this.userImg = this.authService.currentUserValue.img;
+        this.userImg = this.authService.currentUserValue?.img 
+        ? this.authService.currentUserValue.img 
+        : 'https://res.cloudinary.com/djudxjlyc/image/upload/v1749814571/note_app_resources/x0mlelweek1miv8i7kpt.jpg';
+      
 
       this.sidebarItems = ROUTES.filter(
         (x) => x.role.indexOf(userRole) !== -1 || x.role.indexOf('All') !== -1
@@ -140,11 +143,28 @@ export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnI
       this.renderer.addClass(this.document.body, 'submenu-closed');
     }
   }
+  // logout() {
+  //    console.log("rrr")
+  //   this.subs.sink = this.authService.logout().subscribe((res) => {
+  //     if (!res.success) {
+  //       this.router.navigate(['/authentication/signin']);
+  //     }
+  //   });
+  // }
   logout() {
-    this.subs.sink = this.authService.logout().subscribe((res) => {
-      if (!res.success) {
-        this.router.navigate(['/authentication/signin']);
+    console.log("Logging out...");
+    this.authService.logout().subscribe({
+      next: (res) => {
+        if (res?.success) {
+          this.router.navigate(['/authentication/signin']);
+        } else {
+          console.error('Logout failed');
+        }
+      },
+      error: (err) => {
+        console.error('Logout error', err);
       }
     });
   }
+  
 }

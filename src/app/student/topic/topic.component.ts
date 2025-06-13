@@ -12,6 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DatePipe } from '@angular/common';
 import { CreateTopicDialogComponent } from './create-topic-dialog/create-topic-dialog.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar'; 
 export interface Topic {
   _id: string;
   name: string;
@@ -52,7 +53,7 @@ export class TopicComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private topicService: TopicService,public dialog: MatDialog) {}
+  constructor(private topicService: TopicService,public dialog: MatDialog, private snackBar: MatSnackBar ) {}
 
   ngOnInit() {
     this.getAllTopics();
@@ -90,9 +91,22 @@ export class TopicComponent implements OnInit {
 
   // Función de ejemplo para el botón de eliminar
   deleteItem(row: Topic) {
-    console.log('Eliminar tema:', row);
-
+    // Using window.confirm for a simple confirmation dialog.
+    // For a better user experience, you could create a custom MatDialog component.
+    // if (confirm(`Are you sure you want to delete the topic "${row.name}"?`)) {
+      this.topicService.deleteTopic(row._id).subscribe({
+        next: () => {
+          this.snackBar.open('Topic deleted successfully!', 'Close', { duration: 3000 });
+          this.refresh(); // Refresh table data
+        },
+        error: (error) => {
+          console.error('Error deleting topic:', error);
+          this.snackBar.open('Failed to delete topic.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+        }
+      });
+    // }
   }
+  
   
   openCreateDialog(): void {
     const dialogRef = this.dialog.open(CreateTopicDialogComponent, {

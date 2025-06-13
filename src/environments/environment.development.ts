@@ -4,8 +4,8 @@
 
 export const environment = {
   production: true,
-  // apiUrl: 'https://note-app-service-x4ul.onrender.com/api',  // Production URL
-  apiUrl: 'http://localhost:5000/api',
+   apiUrl: 'https://note-app-service-x4ul.onrender.com/api',  // Production URL
+    //apiUrl: 'http://localhost:5000/api',
 };
 
 /*

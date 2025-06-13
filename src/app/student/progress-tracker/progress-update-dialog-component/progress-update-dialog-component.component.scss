@@ -1,0 +1,75 @@
+// General container for the dialog content
+.addContainer {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  // Styling for the modal header
+  .modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  // Title styling
+  .modalTitle {
+    font-size: 20px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  // Close button in the header
+  .modal-close-button {
+    // Uses default styling from mat-icon-button
+  }
+  
+  // Main content area of the dialog
+  .mat-dialog-content {
+    padding: 20px 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+  
+    // --- FIX: Prevent horizontal scrollbar ---
+    overflow-x: hidden;
+  
+    // --- FIX: Reset negative margins from grid system's .row ---
+    // This prevents the row from overflowing its padded container, which is a
+    // common cause for horizontal scrollbars with components like mat-slider.
+    .row {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+  
+  
+  // Action buttons area
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 24px;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  // Full-width form fields
+  .example-full-width {
+    width: 100%;
+  }
+  
+  // Custom styling for the progress label
+  .progress-label {
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.6);
+      margin-bottom: -10px; // Adjust to align with the slider
+      display: block;
+  }
+  
+  // Ensure the spinner within mat-option is aligned
+  mat-option .mat-spinner {
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  

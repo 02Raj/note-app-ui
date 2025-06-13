@@ -52,6 +52,7 @@ export class HeaderComponent
   implements OnInit
 {
   public config!: InConfiguration;
+  userName?:string;
   userImg?: string;
   homePage?: string;
   isNavbarCollapsed = true;
@@ -133,9 +134,12 @@ export class HeaderComponent
   ];
   ngOnInit() {
     this.config = this.configService.configData;
-
+    this.userName =  this.authService.currentUserValue.name;
+    console.log()
     const userRole = this.authService.currentUserValue.role;
-    this.userImg = this.authService.currentUserValue.img;
+    this.userImg = this.authService.currentUserValue?.img 
+    ? this.authService.currentUserValue.img 
+    : 'https://res.cloudinary.com/djudxjlyc/image/upload/v1749814571/note_app_resources/x0mlelweek1miv8i7kpt.jpg';
     this.docElement = document.documentElement;
 
     if (userRole === Role.Admin) {
@@ -197,11 +201,27 @@ export class HeaderComponent
       localStorage.setItem('collapsed_menu', 'true');
     }
   }
+  // logout() {
+  //   this.subs.sink = this.authService.logout().subscribe((res) => {
+  //     if (!res.success) {
+  //       this.router.navigate(['/authentication/signin']);
+  //     }
+  //   });
+  // }
   logout() {
-    this.subs.sink = this.authService.logout().subscribe((res) => {
-      if (!res.success) {
-        this.router.navigate(['/authentication/signin']);
+    console.log("Logging out...");
+    this.authService.logout().subscribe({
+      next: (res) => {
+        if (res?.success) {
+          this.router.navigate(['/authentication/signin']);
+        } else {
+          console.error('Logout failed');
+        }
+      },
+      error: (err) => {
+        console.error('Logout error', err);
       }
     });
   }
+  
 }

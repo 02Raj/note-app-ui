@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MockInterviewService {
+ 
  // Aapka backend server ka URL
- private apiUrl = 'http://localhost:5000/api/mock-interview';
+ private apiUrl = `${environment.apiUrl}/mock-interview`;
 
  constructor(private http: HttpClient) { }
 

@@ -9,6 +9,7 @@ import { DeadlineComponent } from './deadline/deadline.component';
 import { RevisionComponent } from './notes/revision/revision.component';
 import { MockInterviewComponent } from './mock-interview/mock-interview.component';
 import { ResoursesComponent } from './resourses/resourses.component';
+import { ProgressTrackerComponent } from './progress-tracker/progress-tracker.component';
 
 
 export const STUDENT_ROUTE: Route[] = [
@@ -47,6 +48,10 @@ export const STUDENT_ROUTE: Route[] = [
   {
     path: 'resources',
     component: ResoursesComponent,
+  },
+  {
+    path: 'progress-tracker',
+    component: ProgressTrackerComponent,
   },
   { path: '**', component: Page404Component },
 ];

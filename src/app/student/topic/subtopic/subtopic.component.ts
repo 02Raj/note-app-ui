@@ -12,6 +12,7 @@ import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.co
 import { TopicService } from '../topic.service';
 import { CreateTopicDialogComponent } from '../create-topic-dialog/create-topic-dialog.component';
 import { CreateSubtopicDialogComponent } from './create-subtopic-dialog/create-subtopic-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 
@@ -54,7 +55,7 @@ export class SubtopicComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private topicService: TopicService,public dialog: MatDialog) {}
+  constructor(private topicService: TopicService,public dialog: MatDialog,private snackBar: MatSnackBar) {}
 
   ngOnInit() {
     this.getAllSubtopics();
@@ -92,7 +93,16 @@ export class SubtopicComponent {
 
   // Función de ejemplo para el botón de eliminar
   deleteItem(row: Topic) {
-    console.log('Eliminar tema:', row);
+    this.topicService.deleteSubtopic(row._id).subscribe({
+      next: () => {
+        this.snackBar.open('Topic deleted successfully!', 'Close', { duration: 3000 });
+        this.refresh(); // Refresh table data
+      },
+      error: (error) => {
+        console.error('Error deleting topic:', error);
+        this.snackBar.open('Failed to delete topic.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+      }
+    });
 
   }
   

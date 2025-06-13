@@ -1,1 +1,146 @@
-<p>progress-tracker works!</p>
+<section class="content">
+    <div class="content-block">
+      @for (breadscrum of breadscrums; track breadscrum) {
+        <div class="block-header">
+          <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items" [active_item]="breadscrum.active">
+          </app-breadcrumb>
+        </div>
+      }
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <div class="card">
+            <div class="materialTableHeader">
+              <div class="left">
+                <ul class="header-buttons-left ms-0">
+                  <li class="tbl-title">
+                    <h2>My Progress</h2>
+                  </li>
+                  <li class="tbl-search-box">
+                    <label for="search-input"><i class="material-icons search-icon">search</i></label>
+                    <input placeholder="Search Topic or Subtopic" type="text" (input)="onSearch($event)"
+                      class="browser-default search-field" aria-label="Search box">
+                  </li>
+                </ul>
+              </div>
+              <div class="right">
+                <ul class="tbl-export-btn">
+                  <li class="tbl-header-btn">
+                    <div class="m-l-10">
+                      <button mat-icon-button (click)="openUpdateDialog()" class="col-green" matTooltip="Add New Progress">
+                        <mat-icon>add_circle_outline</mat-icon>
+                      </button>
+                    </div>
+                  </li>
+                  <li class="tbl-header-btn">
+                    <div class="m-l-10">
+                      <button mat-icon-button (click)="refresh()" matTooltip="Refresh">
+                        <mat-icon>refresh</mat-icon>
+                      </button>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="body">
+              <form [formGroup]="filterForm" class="row gx-3 gy-2 align-items-center mb-4">
+                <div class="col-sm-4">
+                  <mat-form-field class="w-100">
+                    <mat-label>Filter by Topic</mat-label>
+                    <mat-select formControlName="topicId">
+                      <mat-option value="">All Topics</mat-option>
+                      @for (topic of topics; track topic) {
+                        <mat-option [value]="topic._id">{{ topic.name }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div class="col-sm-4">
+                  <mat-form-field class="w-100">
+                    <mat-label>Filter by Subtopic</mat-label>
+                    <mat-select formControlName="subtopicId">
+                      <mat-option value="">All Subtopics</mat-option>
+                       @for (subtopic of subtopics; track subtopic) {
+                        <mat-option [value]="subtopic._id">{{ subtopic.name }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </form>
+              
+              <div class="table-responsive">
+                @if (isLoading) {
+                  <div class="spinner-container">
+                    <mat-progress-spinner color="primary" [diameter]="40" mode="indeterminate">
+                    </mat-progress-spinner>
+                  </div>
+                }
+  
+                <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table" [hidden]="isLoading">
+  
+                  <ng-container matColumnDef="topicName">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>Topic</mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                      <span class="mobile-label">Topic:</span>
+                      {{ row.topicName }}
+                    </mat-cell>
+                  </ng-container>
+  
+                  <ng-container matColumnDef="subtopicName">
+                      <mat-header-cell *matHeaderCellDef mat-sort-header>Subtopic</mat-header-cell>
+                      <mat-cell *matCellDef="let row">
+                        <span class="mobile-label">Subtopic:</span>
+                        {{ row.subtopicName }}
+                      </mat-cell>
+                  </ng-container>
+                  
+                  <ng-container matColumnDef="progressPercent">
+                      <mat-header-cell *matHeaderCellDef mat-sort-header>Progress</mat-header-cell>
+                      <mat-cell *matCellDef="let row">
+                        <span class="mobile-label">Progress:</span>
+                        <div class="progress-cell">
+                          <mat-progress-bar mode="determinate" [value]="row.progressPercent"></mat-progress-bar>
+                          <span class="progress-value">{{ row.progressPercent }}%</span>
+                        </div>
+                      </mat-cell>
+                  </ng-container>
+  
+                  <ng-container matColumnDef="updatedAt">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>Last Updated</mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                      <span class="mobile-label">Last Updated:</span>
+                      {{ row.updatedAt | date: 'medium' }}
+                    </mat-cell>
+                  </ng-container>
+                  
+                  <ng-container matColumnDef="actions">
+                    <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
+                    <mat-cell *matCellDef="let row" class="center-align">
+                      <button mat-icon-button color="accent" (click)="openUpdateDialog(row); $event.stopPropagation();"
+                        class="tbl-action-btn" matTooltip="Edit Progress">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                    </mat-cell>
+                  </ng-container>
+  
+                  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                  <mat-row 
+                    *matRowDef="let row; columns: displayedColumns;"
+                    (click)="openUpdateDialog(row)"
+                    class="clickable-row">
+                  </mat-row>
+  
+                  <tr class="mat-row" *matNoDataRow>
+                    <td class="mat-cell" [attr.colspan]="displayedColumns.length">No data matching the filter</td>
+                  </tr>
+                </table>
+  
+                <mat-paginator #paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons>
+                </mat-paginator>
+  
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>

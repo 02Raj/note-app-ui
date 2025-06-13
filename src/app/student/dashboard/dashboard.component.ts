@@ -1,3 +1,7 @@
+/*
+* dashboard.component.ts
+* This component fetches dashboard statistics and binds them to the template.
+*/
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import {
@@ -22,6 +26,10 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { BaseChartDirective } from 'ng2-charts';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
+import { DashboardService, DashboardStats } from './dashboard.service'; // Assuming service is in the same folder
+import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
+import { AuthService } from '@core/service/auth.service';
 
 export type barChartOptions = {
   series: ApexAxisChartSeries;
@@ -54,6 +62,8 @@ export type areaChartOptions = {
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
   imports: [
+    CommonModule,
+    DatePipe,
     BreadcrumbComponent,
     BaseChartDirective,
     MatProgressBarModule,
@@ -68,18 +78,25 @@ export class DashboardComponent implements OnInit {
   public barChartOptions!: Partial<barChartOptions>;
   public areaChartOptions!: Partial<areaChartOptions>;
 
+  public dashboardStats: DashboardStats | null = null;
+  public username: string;
+  public topicCompletionPercentage = 0;
+
   breadscrums = [
     {
       title: 'Dashboard',
-      items: ['Student'],
+      items: ['Home'],
       active: 'Dashboard',
     },
   ];
-  constructor() {
-    //constructor
-  }
 
-  // Doughnut chart start
+  constructor(
+    private dashboardService: DashboardService,
+    private authService: AuthService
+  ) {
+    // Fetch username from AuthService
+    this.username = this.authService.currentUserValue.name || 'User';
+  }
 
   public doughnutChartOptions: ChartConfiguration['options'] = {
     responsive: true,
@@ -90,68 +107,86 @@ export class DashboardComponent implements OnInit {
       },
     },
   };
-  public doughnutChartLabels: string[] = [
-    'Development',
-    'Java Classes',
-    'Painting ',
-    'Geography Class',
-  ];
+  public doughnutChartLabels: string[] = ['Completed', 'Pending'];
   public doughnutChartData: ChartData<'doughnut'> = {
     labels: this.doughnutChartLabels,
     datasets: [
       {
-        data: [32, 25, 20, 23],
-        backgroundColor: ['#5A5FAF', '#F7BF31', '#EA6E6C', '#28BDB8'],
+        data: [0, 0], // Initial data
+        backgroundColor: ['#4CAF50', '#F44336'],
+        borderColor: 'transparent',
       },
     ],
   };
   public doughnutChartType: ChartType = 'doughnut';
 
-  // Doughnut chart end
-
   ngOnInit() {
-    this.chart1();
-    this.chart2();
+    this.loadDashboardData();
+    // Initialize charts with placeholder configurations
+    this.initializeAreaChart();
+    this.initializeBarChart();
   }
 
-  private chart1() {
+  loadDashboardData() {
+    this.dashboardService.getDashboardStats().subscribe({
+      next: (response) => {
+        this.dashboardStats = response.data;
+        this.updateUIAndCharts();
+      },
+      error: (err) => {
+        console.error('Failed to load dashboard stats', err);
+      }
+    });
+  }
+
+  updateUIAndCharts() {
+    if (!this.dashboardStats) {
+      return;
+    }
+
+    // Calculate percentage for the welcome message
+    if (this.dashboardStats.topics.total > 0) {
+        this.topicCompletionPercentage = Math.round((this.dashboardStats.topics.completed / this.dashboardStats.topics.total) * 100);
+    }
+
+    // Update Doughnut Chart for Topic Progress
+    const completed = this.dashboardStats.topics.completed;
+    const pending = this.dashboardStats.topics.total - completed;
+    this.doughnutChartData.datasets[0].data = [completed, pending];
+
+    // Update Area Chart for Mock Interview Results
+    const recentScores = this.dashboardStats.mockInterviews.recentScores || [];
+    this.areaChartOptions.series = [{
+      name: 'Score',
+      data: recentScores.map(item => item.score)
+    }];
+    this.areaChartOptions.xaxis = {
+      categories: recentScores.map(item => new Date(item.createdAt).toLocaleDateString())
+    };
+
+    // Update Bar Chart for Time Spent On Learning
+    if (this.dashboardStats.learningTimeChart) {
+      this.barChartOptions.series = this.dashboardStats.learningTimeChart.series;
+      this.barChartOptions.xaxis = {
+          ...this.barChartOptions.xaxis, // Preserve other xaxis settings
+          categories: this.dashboardStats.learningTimeChart.categories
+      };
+    }
+  }
+
+  private initializeAreaChart() {
     this.areaChartOptions = {
-      series: [
-        {
-          name: 'Mathes',
-          data: [31, 40, 28, 51, 42, 85, 77],
-        },
-        {
-          name: 'Science',
-          data: [11, 32, 45, 32, 34, 52, 41],
-        },
-      ],
+      series: [],
       chart: {
         height: 350,
         type: 'area',
-        toolbar: {
-          show: false,
-        },
+        toolbar: { show: false },
         foreColor: '#9aa0ac',
       },
       colors: ['#F77A9A', '#A054F7'],
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        curve: 'smooth',
-      },
-      xaxis: {
-        categories: [
-          'test 1',
-          'test 2',
-          'test 3',
-          'test 4',
-          'test 5',
-          'test 6',
-          'test 7',
-        ],
-      },
+      dataLabels: { enabled: false },
+      stroke: { curve: 'smooth' },
+      xaxis: { categories: [] },
       grid: {
         show: true,
         borderColor: '#9aa0ac',
@@ -161,77 +196,39 @@ export class DashboardComponent implements OnInit {
         show: true,
         position: 'top',
         horizontalAlign: 'center',
-        offsetX: 0,
-        offsetY: 0,
       },
     };
   }
 
-  private chart2() {
+  private initializeBarChart() {
     this.barChartOptions = {
-      series: [
-        {
-          name: 'Physics',
-          data: [44, 55, 41, 67, 22, 43],
-        },
-        {
-          name: 'Computer',
-          data: [13, 23, 20, 8, 13, 27],
-        },
-        {
-          name: 'Management',
-          data: [11, 17, 15, 15, 21, 14],
-        },
-        {
-          name: 'Mathes',
-          data: [21, 7, 25, 13, 22, 8],
-        },
-      ],
+      series: [], 
       chart: {
         type: 'bar',
         height: 330,
         foreColor: '#9aa0ac',
-        stacked: true,
-        toolbar: {
-          show: false,
-        },
+        stacked: false, 
+        toolbar: { show: false },
       },
       responsive: [
         {
           breakpoint: 480,
           options: {
-            legend: {
-              position: 'bottom',
-              offsetX: -10,
-              offsetY: 0,
-            },
+            legend: { position: 'bottom', offsetX: -10, offsetY: 0 },
           },
         },
       ],
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: '20%',
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
+      plotOptions: { bar: { horizontal: false, columnWidth: '40%' } },
+      dataLabels: { enabled: false },
       xaxis: {
         type: 'category',
-        categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        categories: [], 
       },
-      legend: {
-        show: false,
-      },
-      grid: {
-        show: true,
-        borderColor: '#9aa0ac',
-        strokeDashArray: 1,
-      },
+      legend: { show: false },
+      grid: { show: true, borderColor: '#9aa0ac', strokeDashArray: 1 },
       fill: {
         opacity: 1,
-        colors: ['#25B9C1', '#4B4BCB', '#EA9022', '#9E9E9E'],
+        colors: ['#25B9C1'], 
       },
     };
   }

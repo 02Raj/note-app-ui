@@ -52,7 +52,7 @@ export class DeadlinedialogComponent {
     // Check if data is passed for editing
     if (this.data && this.data._id) {
       this.isEditMode = true;
-      this.dialogTitle = 'Edit Deadline';
+      this.dialogTitle = 'Update Deadline Status';
     }
 
     this.deadlineForm = this.fb.group({
