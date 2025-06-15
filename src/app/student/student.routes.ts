@@ -10,6 +10,7 @@ import { RevisionComponent } from './notes/revision/revision.component';
 import { MockInterviewComponent } from './mock-interview/mock-interview.component';
 import { ResoursesComponent } from './resourses/resourses.component';
 import { ProgressTrackerComponent } from './progress-tracker/progress-tracker.component';
+import { ResumeAnalyzerComponent } from './resume-analyzer/resume-analyzer.component';
 
 
 export const STUDENT_ROUTE: Route[] = [
@@ -52,6 +53,10 @@ export const STUDENT_ROUTE: Route[] = [
   {
     path: 'progress-tracker',
     component: ProgressTrackerComponent,
+  },
+    {
+    path: 'resume-analyzer',
+    component: ResumeAnalyzerComponent,
   },
   { path: '**', component: Page404Component },
 ];

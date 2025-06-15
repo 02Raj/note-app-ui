@@ -1,0 +1,145 @@
+<section class="content">
+  <div class="content-block">
+    @for (breadscrum of breadscrums; track breadscrum) {
+    <div class="block-header">
+      <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items" [active_item]="breadscrum.active"></app-breadcrumb>
+    </div>
+    }
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="body">
+
+            <!-- ======================= -->
+            <!--   UPLOAD STATE UI       -->
+            <!-- ======================= -->
+            @if (uiState === 'upload') {
+              <div class="upload-container">
+                <div class="upload-icon">
+                  <mat-icon>cloud_upload</mat-icon>
+                </div>
+                <h2>Resume Copilot</h2>
+                <p class="text-muted">Get an instant analysis of your resume. Check your ATS score, find relevant jobs, and get personalized interview questions.</p>
+                
+                <button mat-flat-button color="primary" class="upload-button" (click)="fileInput.click()">
+                  Select Resume File
+                </button>
+                <input hidden type="file" (change)="onFileSelected($event)" #fileInput accept=".pdf,.docx">
+                
+                @if (fileName) {
+                  <div class="file-name-display">
+                    <mat-icon>description</mat-icon>
+                    <span>{{ fileName }}</span>
+                  </div>
+                }
+                
+                <button mat-raised-button color="accent" class="analyze-button" (click)="startAnalysis()" [disabled]="!selectedFile">
+                  Analyze My Resume
+                </button>
+
+                @if (errorMessage) {
+                  <p class="error-message">{{errorMessage}}</p>
+                }
+              </div>
+            }
+
+            <!-- ======================= -->
+            <!--   LOADING STATE UI      -->
+            <!-- ======================= -->
+            @if (uiState === 'loading') {
+              <div class="loading-container">
+                <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+                <h3 class="loading-text">{{ loadingText }}</h3>
+              </div>
+            }
+
+            <!-- ======================= -->
+            <!--   REPORT STATE UI       -->
+            <!-- ======================= -->
+            @if (uiState === 'report' && analysisReport) {
+              <div class="report-container">
+                <div class="report-header">
+                  <h3>Your Personalized Resume Report</h3>
+                  <button mat-stroked-button color="primary" (click)="analyzeAnotherResume()">
+                    <mat-icon>upload_file</mat-icon>
+                    Analyze Another Resume
+                  </button>
+                </div>
+
+                <!-- Section A: Scorecard -->
+                <mat-card class="report-section">
+                  <mat-card-header>
+                    <mat-card-title>Resume Scorecard</mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content class="scorecard-content">
+                    <div class="ats-score">
+                      <mat-progress-spinner mode="determinate" [value]="analysisReport.scorecard.atsScore" [diameter]="120" [strokeWidth]="10">
+                      </mat-progress-spinner>
+                      <div class="score-text">
+                        <div>{{analysisReport.scorecard.atsScore}}<span>/100</span></div>
+                        <small>ATS Score</small>
+                      </div>
+                    </div>
+                    <div class="feedback-details">
+                      <div class="faang-ready" [class.ready]="analysisReport.scorecard.isFaangReady" [class.not-ready]="!analysisReport.scorecard.isFaangReady">
+                        <mat-icon>{{ analysisReport.scorecard.isFaangReady ? 'check_circle' : 'highlight_off' }}</mat-icon>
+                        <span>{{ analysisReport.scorecard.isFaangReady ? 'FAANG Ready' : 'Needs Improvement' }}</span>
+                      </div>
+                      <mat-divider></mat-divider>
+                      <div class="feedback-points">
+                        <div class="points-section">
+                          <h4><mat-icon>thumb_up</mat-icon> Key Strengths</h4>
+                          <ul>@for(point of analysisReport.scorecard.positivePoints; track point) {<li>{{point}}</li>}</ul>
+                        </div>
+                        <div class="points-section">
+                          <h4><mat-icon>edit</mat-icon> Improvement Areas</h4>
+                          <ul>@for(point of analysisReport.scorecard.improvementAreas; track point) {<li>{{point}}</li>}</ul>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <!-- Section B: Job Opportunities -->
+                <mat-card class="report-section">
+                  <mat-card-header><mat-card-title>Top Opportunities For You</mat-card-title></mat-card-header>
+                  <mat-card-content>
+                    <mat-list>
+                      @for(job of analysisReport.opportunities; track job.applyLink) {
+                        <mat-list-item>
+                          <mat-icon matListItemIcon>work</mat-icon>
+                          <div matListItemTitle>{{job.jobTitle}}</div>
+                          <div matListItemLine>{{job.company}} - {{job.location}}</div>
+                          <div matListItemMeta>
+                            <a mat-stroked-button color="primary" [href]="job.applyLink" target="_blank">Apply Now</a>
+                          </div>
+                        </mat-list-item>
+                      }
+                    </mat-list>
+                  </mat-card-content>
+                </mat-card>
+
+                <!-- Section C: Interview Prep -->
+                <mat-card class="report-section">
+                  <mat-card-header><mat-card-title>Your Personalized Interview Questions</mat-card-title></mat-card-header>
+                  <mat-card-content>
+                    <mat-list>
+                      @for(q of analysisReport.interviewPrep.frequentlyAskedQuestions; track q; let i = $index) {
+                        <mat-list-item>
+                          <div matListItemAvatar>{{i + 1}}</div>
+                          <div matListItemTitle>{{q}}</div>
+                        </mat-list-item>
+                      }
+                    </mat-list>
+                  </mat-card-content>
+                </mat-card>
+
+              </div>
+            }
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

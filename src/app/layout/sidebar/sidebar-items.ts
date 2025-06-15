@@ -244,6 +244,18 @@ export const ROUTES: RouteInfo[] = [
         role: [''],
         submenu: [],
       },
+            {
+        path: '/student/resume-analyzer',
+        title: 'Resume Analyzer',
+        iconType: '',
+        icon: '',
+        class: 'ml-menu',
+        groupTitle: false,
+        badge: '',
+        badgeClass: '',
+        role: [''],
+        submenu: [],
+      },
   
     ],
 
