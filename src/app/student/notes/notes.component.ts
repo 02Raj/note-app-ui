@@ -147,14 +147,22 @@ export class NotesComponent implements OnInit, AfterViewInit {
     console.log('Deleting note:', row);
   }
 
-  openCreateDialog(): void {
-    const dialogRef = this.dialog.open(CreateNotesDialogComponent, { width: '800px' });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.refresh();
-      }
-    });
-  }
+openCreateDialog(noteData: any = null): void {
+  const dialogRef = this.dialog.open(CreateNotesDialogComponent, {
+    width: '600px',
+    data: noteData // 👈 pass noteData (null for create, object for edit)
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    console.log("success",result)
+    if (result === 'success') {
+      this.loadTopics()
+      console.log("rrrr")
+      this.refresh(); // or reload notes
+    }
+  });
+}
+
 
   refresh() {
     this.filterForm.reset({ topicId: '', subtopicId: { value: '', disabled: true } });
