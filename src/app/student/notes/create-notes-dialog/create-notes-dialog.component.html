@@ -28,7 +28,6 @@
                 </span>
               </mat-option>
               <mat-divider *ngIf="topics.length > 0"></mat-divider>
-
               <mat-option *ngFor="let topic of topics" [value]="topic._id">{{ topic.name }}</mat-option>
             </mat-select>
             <mat-error *ngIf="noteForm.get('topicId')?.hasError('required')">Topic is required</mat-error>
@@ -39,14 +38,13 @@
           <mat-form-field class="example-full-width" appearance="outline">
             <mat-label>Subtopic (Optional)</mat-label>
             <mat-select formControlName="subtopicId" [disabled]="!noteForm.get('topicId')?.value || noteForm.get('topicId')?.value === 'createNewTopic' || subtopics.length === 0">
-               <mat-option value="createNewSubtopic">
+              <mat-option value="createNewSubtopic">
                 <span style="color: #007bff; display: flex; align-items: center; gap: 8px;">
                   <mat-icon>add_circle</mat-icon>
                   Create New Subtopic
                 </span>
               </mat-option>
               <mat-divider *ngIf="subtopics.length > 0"></mat-divider>
-              
               <mat-option *ngFor="let subtopic of subtopics" [value]="subtopic._id">{{ subtopic.name }}</mat-option>
             </mat-select>
           </mat-form-field>
@@ -61,7 +59,7 @@
               (onContentChanged)="onContentChanged($event)">
             </quill-editor>
           </div>
-          <div class="text-danger" *ngIf="noteForm.get('content')?.invalid && noteForm.get('content')?.touched">
+          <div class="text-danger" *ngIf="noteForm.get('content')?.hasError('required') && noteForm.get('content')?.touched">
             Content is required.
           </div>
         </div>
@@ -70,7 +68,9 @@
 
     <div mat-dialog-actions class="modal-actions">
       <button mat-flat-button color="warn" type="button" (click)="onCancel()">Cancel</button>
-      <button mat-flat-button color="primary" type="submit">Save Note</button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="noteForm.invalid">
+        {{ isEditMode ? 'Update Note' : 'Save Note' }}
+      </button>
     </div>
   </form>
 </div>

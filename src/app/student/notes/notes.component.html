@@ -118,14 +118,26 @@
                 </ng-container>
 
                 <ng-container matColumnDef="actions">
-                  <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
-                  <mat-cell *matCellDef="let row" class="center-align">
-                    <button mat-icon-button color="accent" (click)="$event.stopPropagation(); deleteItem(row)"
-                      class="tbl-action-btn" matTooltip="Delete">
-                      <mat-icon>delete_outline</mat-icon>
-                    </button>
-                  </mat-cell>
-                </ng-container>
+  <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
+  <mat-cell *matCellDef="let row" class="center-align">
+    
+    <!-- Edit Icon -->
+    <button mat-icon-button color="primary"
+      (click)="$event.stopPropagation(); openCreateDialog(row)"
+      class="tbl-action-btn" matTooltip="Edit">
+      <mat-icon>edit</mat-icon>
+    </button>
+
+    <!-- Delete Icon -->
+    <button mat-icon-button color="accent"
+      (click)="$event.stopPropagation(); deleteItem(row)"
+      class="tbl-action-btn" matTooltip="Delete">
+      <mat-icon>delete_outline</mat-icon>
+    </button>
+
+  </mat-cell>
+</ng-container>
+
 
                 <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
                 <mat-row 

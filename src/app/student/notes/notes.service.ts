@@ -36,6 +36,14 @@ export class NotesService {
   createNote(payload: NotePayload): Observable<any> {
     return this.http.post(this.noteApiUrl, payload);
   }
+/**
+ * Updates an existing note by its ID.
+ * @param id - The ID of the note to update.
+ * @param payload - The updated note data.
+ */
+updateNote(id: string, payload: NotePayload): Observable<any> {
+  return this.http.put(`${this.noteApiUrl}/${id}`, payload);
+}
 
   /**
    * Gets all notes for the current user.
