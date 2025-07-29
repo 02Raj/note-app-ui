@@ -149,7 +149,8 @@ export class NotesComponent implements OnInit, AfterViewInit {
 
 openCreateDialog(noteData: any = null): void {
   const dialogRef = this.dialog.open(CreateNotesDialogComponent, {
-    width: '600px',
+       width: '1000px',
+      maxWidth: '90vw',
     data: noteData // 👈 pass noteData (null for create, object for edit)
   });
 
@@ -171,7 +172,8 @@ openCreateDialog(noteData: any = null): void {
 
   viewNote(note: any): void {
     this.dialog.open(NoteDetailsComponent, {
-      width: '600px',
+     width: '1000px',
+      maxWidth: '90vw',
       data: note
     });
   }
