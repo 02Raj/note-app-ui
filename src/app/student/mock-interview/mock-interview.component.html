@@ -1,4 +1,4 @@
-<section class="content">
+<!-- <section class="content">
   <div class="content-block">
     <div class="block-header">
       @for (breadscrum of breadscrums; track breadscrum) {
@@ -11,7 +11,6 @@
         <div class="card">
           <div class="body">
 
-            <!-- === LOADING LOGIC === -->
             @if (isLoading) {
               <div class="spinner-container">
                 <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
@@ -23,7 +22,7 @@
             } @else {
 
             <div>
-              <!-- STEP 1: SETUP FORM -->
+          
               @if (interviewState === 'setup') {
               <div class="setup-container">
                 <h3>Start Your Mock Interview</h3>
@@ -113,7 +112,7 @@
               </div>
               }
 
-              <!-- STEP 2: INTERVIEW IN PROGRESS -->
+          
               @if (interviewState === 'in_progress' && sessionData) {
               <mat-progress-bar mode="determinate"
                 [value]="(sessionData.questionNumber / sessionData.totalQuestions) * 100"></mat-progress-bar>
@@ -122,7 +121,7 @@
                 <p class="lead">{{ sessionData.questionText }}</p>
               </div>
               
-              <!-- Voice Mode UI -->
+            
               @if (interviewMode === 'voice') {
               <div class="voice-interview-container text-center">
                 <div class="mic-container my-5">
@@ -148,7 +147,7 @@
               </div>
               }
 
-              <!-- Text Mode UI -->
+           
               @if (interviewMode === 'text') {
               <div class="text-interview-container mt-3">
                 <form [formGroup]="answerForm" (ngSubmit)="onSubmitAnswer()">
@@ -163,7 +162,7 @@
               }
               }
 
-              <!-- STEP 4: FINAL REPORT -->
+          
               @if (interviewState === 'completed' && finalReport) {
               <div class="report-container">
                 <h3 class="report-title">Your Interview Performance Report</h3>
@@ -228,7 +227,7 @@
               </div>
               }
 
-              <!-- Global Error Message -->
+            
               @if (errorMessage) {
                 <div class="error-message text-danger text-center mt-3">
                   {{ errorMessage }}
@@ -242,4 +241,4 @@
       </div>
     </div>
   </div>
-</section>
+</section> -->

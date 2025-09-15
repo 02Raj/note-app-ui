@@ -1,14 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
-// --- Third-party Imports ---
-import { QuillModule } from 'ngx-quill'; // <<--- 1. IMPORT QUILL MODULE
-
-// --- Required Material Imports ---
+// Material imports
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
@@ -21,7 +18,10 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
-// --- Shared Components & Services ---
+// Third-party
+import { QuillModule } from 'ngx-quill';
+
+// Shared
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import { MockInterviewService } from './mock-interview.service';
 import { AuthService } from '@core';
@@ -34,30 +34,28 @@ declare var webkitSpeechRecognition: any;
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    BreadcrumbComponent,
     MatProgressBarModule,
     MatIconModule,
     MatChipsModule,
     MatAutocompleteModule,
     MatButtonToggleModule,
+    QuillModule,
+    BreadcrumbComponent,
     SafeHtmlPipe,
-    QuillModule, // <<--- 2. ADD IT TO THE COMPONENT'S IMPORTS ARRAY
-    MatChipsModule
+    ReactiveFormsModule
   ],
   templateUrl: './mock-interview.component.html',
   styleUrl: './mock-interview.component.scss'
 })
 export class MockInterviewComponent implements OnInit {
   interviewState: 'setup' | 'in_progress' | 'paused' | 'generating_feedback' | 'completed' = 'setup';
-  interviewMode: 'voice' | 'text' = 'voice';          // User preference
+  interviewMode: 'voice' | 'text' = 'voice';
   isLoading = false;
   errorMessage: string | null = null;
 
@@ -65,16 +63,27 @@ export class MockInterviewComponent implements OnInit {
   answerForm: FormGroup;
   sessionData: any = null;
   finalReport: any = null;
-
   currentUser: any = null;
 
+  // --------- Chips + Autocomplete ---------
+  breadscrums = [
+    { title: 'Mock Interview', items: ['Interview'], active: 'Start' }
+  ];
+
+  topicCtrl = new FormControl('');
+  separatorKeysCodes: number[] = [ENTER, COMMA];
+  filteredTopics!: Observable<string[]>;
+
   topics: string[] = [];
+  allTopics: string[] = ['Java', 'Spring', 'Angular', 'Node.js', 'SQL'];
+
+  // --------- Custom Questions ---------
   customQuestions: string[] = [];
   newCustomQuestion: string = '';
   questionCount: number = 10;
   timeLimit: number = 0;
 
-  // Voice recognition
+  // --------- Voice Recognition ---------
   recognition: any = null;
   isListening: boolean = false;
   statusText: string = 'Click Start Interview';
@@ -95,6 +104,7 @@ export class MockInterviewComponent implements OnInit {
       timeLimit: [0],
       customQuestions: [[]]
     });
+
     this.answerForm = this.fb.group({
       userAnswer: ['', Validators.required]
     });
@@ -102,18 +112,61 @@ export class MockInterviewComponent implements OnInit {
     // Browser speech recognition setup
     if ('webkitSpeechRecognition' in window) {
       this.recognition = new (window as any).webkitSpeechRecognition();
-      this.recognition.continuous = true;           // keep listening until stopped
-      this.recognition.interimResults = true;        // show live transcript
+      this.recognition.continuous = true;
+      this.recognition.interimResults = true;
       this.recognition.lang = 'en-US';
       this.setupSpeechRecognition();
     }
+
+    // Setup autocomplete filtering
+    this.filteredTopics = this.topicCtrl.valueChanges.pipe(
+      startWith(null),
+      map((value: string | null) =>
+        value ? this._filter(value) : this.allTopics.slice()
+      )
+    );
   }
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUserValue;
   }
 
-  // ----------- VOICE RECOGNITION LOGIC -----------
+  // --------- Chips + Autocomplete Methods ---------
+  addTopic(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value && !this.topics.includes(value)) {
+      this.topics.push(value);
+      this.setupForm.get('topics')?.setValue(this.topics);
+    }
+    event.chipInput!.clear();
+    this.topicCtrl.setValue(null);
+  }
+
+  removeTopic(topic: string): void {
+    const index = this.topics.indexOf(topic);
+    if (index >= 0) {
+      this.topics.splice(index, 1);
+      this.setupForm.get('topics')?.setValue(this.topics);
+    }
+  }
+
+  selectedTopic(event: MatAutocompleteSelectedEvent): void {
+    const value = event.option.value;
+    if (value && !this.topics.includes(value)) {
+      this.topics.push(value);
+      this.setupForm.get('topics')?.setValue(this.topics);
+    }
+    this.topicCtrl.setValue(null);
+  }
+
+  private _filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+    return this.allTopics.filter(topic =>
+      topic.toLowerCase().includes(filterValue)
+    );
+  }
+
+  // --------- Voice Recognition ---------
   setupSpeechRecognition(): void {
     if (!this.recognition) return;
 
@@ -139,7 +192,7 @@ export class MockInterviewComponent implements OnInit {
       this.cdr.detectChanges();
     };
 
-    this.recognition.onerror = (event: any) => {
+    this.recognition.onerror = () => {
       this.isListening = false;
       this.statusText = 'Mic error.';
       this.cdr.detectChanges();
@@ -161,6 +214,7 @@ export class MockInterviewComponent implements OnInit {
       this.recognition.start();
     }
   }
+
   stopListening(): void {
     if (this.recognition && this.isListening) {
       this.recognition.stop();
@@ -170,7 +224,7 @@ export class MockInterviewComponent implements OnInit {
     }
   }
 
-  // ----------- AI VOICE QUESTION SPEAKING ----------
+  // --------- AI Voice Speaking ---------
   speak(text: string, onEndCallback: () => void): void {
     if (!('speechSynthesis' in window)) {
       onEndCallback();
@@ -180,14 +234,13 @@ export class MockInterviewComponent implements OnInit {
     const utterance = new window.SpeechSynthesisUtterance(text);
     utterance.lang = 'en-US';
     utterance.rate = 0.95;
-    // Prefer female voice if available
     const voices = window.speechSynthesis.getVoices();
     utterance.voice = voices.find(v => v.name.toLowerCase().includes('female')) || null;
     utterance.onend = onEndCallback;
     window.speechSynthesis.speak(utterance);
   }
 
-  // ----------- INTERVIEW LOGIC -----------
+  // --------- Interview Logic ---------
   onStartInterview(): void {
     if (this.setupForm.invalid) return;
     this.isLoading = true;
@@ -205,7 +258,6 @@ export class MockInterviewComponent implements OnInit {
         this.sessionData = response;
         this.interviewState = 'in_progress';
         this.isLoading = false;
-        // Voice: speak question and start listening
         if (this.interviewMode === 'voice') {
           this.speak(response.questionText, () => {
             this.startListening();
@@ -240,7 +292,6 @@ export class MockInterviewComponent implements OnInit {
           this.getFinalReport();
         } else {
           this.sessionData = response;
-          // Autoplay next question by voice if in voice mode
           if (this.interviewMode === 'voice') {
             this.speak(response.questionText, () => {
               this.startListening();
@@ -275,7 +326,7 @@ export class MockInterviewComponent implements OnInit {
     });
   }
 
-  // ------- Custom Question Methods -------
+  // --------- Custom Question Methods ---------
   addCustomQuestion(): void {
     const value = this.newCustomQuestion.trim();
     if (value && !this.customQuestions.includes(value)) {
@@ -284,6 +335,7 @@ export class MockInterviewComponent implements OnInit {
       this.newCustomQuestion = '';
     }
   }
+
   removeCustomQuestion(q: string): void {
     const idx = this.customQuestions.indexOf(q);
     if (idx >= 0) this.customQuestions.splice(idx, 1);
