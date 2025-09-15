@@ -142,10 +142,23 @@ export class NotesComponent implements OnInit, AfterViewInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  deleteItem(row: Note) {
-    // Implement your delete logic here
-    console.log('Deleting note:', row);
+deleteItem(row: Note) {
+  if (confirm(`Are you sure you want to delete the note: "${row.title}"?`)) {
+    this.notesService.deleteNote(row._id).subscribe({
+      next: (res) => {
+        console.log('Note deleted successfully:', res);
+        
+        // table refresh karne ke liye dataSource se item remove karo
+        this.dataSource.data = this.dataSource.data.filter(
+          (note: Note) => note._id !== row._id
+        );
+      },
+      error: (err) => {
+        console.error('Error deleting note:', err);
+      }
+    });
   }
+}
 
 openCreateDialog(noteData: any = null): void {
   const dialogRef = this.dialog.open(CreateNotesDialogComponent, {

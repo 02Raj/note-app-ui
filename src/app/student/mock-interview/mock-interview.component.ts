@@ -50,36 +50,36 @@ declare var webkitSpeechRecognition: any;
     MatButtonToggleModule,
     SafeHtmlPipe,
     QuillModule, // <<--- 2. ADD IT TO THE COMPONENT'S IMPORTS ARRAY
+    MatChipsModule
   ],
   templateUrl: './mock-interview.component.html',
   styleUrl: './mock-interview.component.scss'
 })
 export class MockInterviewComponent implements OnInit {
-  // --- State Management ---
-  interviewState: 'setup' | 'in_progress' | 'generating_feedback' | 'completed' = 'setup';
-  interviewMode: 'voice' | 'text' = 'voice';
+  interviewState: 'setup' | 'in_progress' | 'paused' | 'generating_feedback' | 'completed' = 'setup';
+  interviewMode: 'voice' | 'text' = 'voice';          // User preference
   isLoading = false;
   errorMessage: string | null = null;
 
-  // --- Forms & Data ---
   setupForm: FormGroup;
   answerForm: FormGroup;
   sessionData: any = null;
   finalReport: any = null;
+
   currentUser: any = null;
-  breadscrums = [{ title: 'Mock Interview', items: ['Home'], active: 'Mock Interview' }];
 
-  // --- Voice Feature Properties ---
-  isListening = false;
-  statusText = 'Click "Start Interview" to begin.';
-  recognition: any;
+  topics: string[] = [];
+  customQuestions: string[] = [];
+  newCustomQuestion: string = '';
+  questionCount: number = 10;
+  timeLimit: number = 0;
 
-  // --- Chip Input Properties ---
-  separatorKeysCodes: number[] = [ENTER, COMMA];
-  topicCtrl = new FormControl('');
-  filteredTopics: Observable<string[]>;
-  allTopics: string[] = ['React', 'Angular', 'Node.js', 'Express', 'MongoDB', 'JavaScript'];
-  @ViewChild('topicInput') topicInput!: ElementRef<HTMLInputElement>;
+  // Voice recognition
+  recognition: any = null;
+  isListening: boolean = false;
+  statusText: string = 'Click Start Interview';
+  liveVoiceTranscript: string = '';
+  private _finalTranscript: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -88,24 +88,24 @@ export class MockInterviewComponent implements OnInit {
     private cdr: ChangeDetectorRef
   ) {
     this.setupForm = this.fb.group({
-      jobProfile: ['', [Validators.required]],
-      experience: ['', [Validators.required]],
-      topics: [[]]
+      jobProfile: ['', Validators.required],
+      experience: ['', Validators.required],
+      topics: [[]],
+      questionCount: [10],
+      timeLimit: [0],
+      customQuestions: [[]]
     });
     this.answerForm = this.fb.group({
-      userAnswer: ['', [Validators.required]]
+      userAnswer: ['', Validators.required]
     });
-    this.filteredTopics = this.topicCtrl.valueChanges.pipe(
-      startWith(null),
-      map((topic: string | null) => (topic ? this._filter(topic) : this.allTopics.slice())),
-    );
+
+    // Browser speech recognition setup
     if ('webkitSpeechRecognition' in window) {
-      this.recognition = new webkitSpeechRecognition();
-      this.recognition.continuous = false;
+      this.recognition = new (window as any).webkitSpeechRecognition();
+      this.recognition.continuous = true;           // keep listening until stopped
+      this.recognition.interimResults = true;        // show live transcript
       this.recognition.lang = 'en-US';
       this.setupSpeechRecognition();
-    } else {
-      console.warn("Speech Recognition not supported.");
     }
   }
 
@@ -113,97 +113,108 @@ export class MockInterviewComponent implements OnInit {
     this.currentUser = this.authService.currentUserValue;
   }
 
-  // --- Chip Input Methods ---
-  get topics(): string[] { return this.setupForm.get('topics')?.value; }
-  add(event: MatChipInputEvent): void {
-    const value = (event.value || '').trim();
-    if (value && !this.topics.includes(value)) { this.topics.push(value); }
-    this.setupForm.get('topics')?.setValue(this.topics);
-    event.chipInput!.clear();
-    this.topicCtrl.setValue(null);
-  }
-  remove(topic: string): void {
-    const index = this.topics.indexOf(topic);
-    if (index >= 0) { this.topics.splice(index, 1); }
-    this.setupForm.get('topics')?.setValue(this.topics);
-  }
-  selected(event: MatAutocompleteSelectedEvent): void {
-    const value = event.option.viewValue;
-    if (!this.topics.includes(value)) { this.topics.push(value); }
-    this.setupForm.get('topics')?.setValue(this.topics);
-    this.topicInput.nativeElement.value = '';
-    this.topicCtrl.setValue(null);
-  }
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    return this.allTopics.filter(topic => topic.toLowerCase().includes(filterValue));
-  }
-
-  // --- Voice Feature Methods ---
-  speak(text: string, onEndCallback: () => void): void {
-    if (!('speechSynthesis' in window)) { onEndCallback(); return; }
-    this.statusText = 'AI is asking a question...';
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.9;
-    utterance.onend = () => { onEndCallback(); };
-    window.speechSynthesis.speak(utterance);
-  }
+  // ----------- VOICE RECOGNITION LOGIC -----------
   setupSpeechRecognition(): void {
     if (!this.recognition) return;
+
     this.recognition.onstart = () => {
       this.isListening = true;
       this.statusText = 'Listening...';
+      this.liveVoiceTranscript = '';
+      this._finalTranscript = '';
       this.cdr.detectChanges();
     };
-    this.recognition.onresult = (event: any) => { this.answerForm.get('userAnswer')?.setValue(event.results[0][0].transcript); };
+    this.recognition.onresult = (event: any) => {
+      let interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          this._finalTranscript += transcript + ' ';
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+      this.liveVoiceTranscript = (this._finalTranscript + interimTranscript).trim();
+      this.answerForm.get('userAnswer')?.setValue(this.liveVoiceTranscript);
+      this.cdr.detectChanges();
+    };
+
     this.recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
       this.isListening = false;
-      this.statusText = 'Could not hear you. Click the mic to try again.';
+      this.statusText = 'Mic error.';
       this.cdr.detectChanges();
     };
+
     this.recognition.onend = () => {
       this.isListening = false;
-      this.statusText = 'Processing your answer...';
+      this.statusText = 'Mic stopped.';
+      this.answerForm.get('userAnswer')?.setValue(this.liveVoiceTranscript.trim());
       this.cdr.detectChanges();
-      if (this.answerForm.valid) { this.onSubmitAnswer(); }
     };
   }
+
   startListening(): void {
     if (this.recognition && !this.isListening) {
       this.answerForm.reset();
+      this.liveVoiceTranscript = '';
+      this._finalTranscript = '';
       this.recognition.start();
     }
   }
+  stopListening(): void {
+    if (this.recognition && this.isListening) {
+      this.recognition.stop();
+      this.isListening = false;
+      this.statusText = 'Stopped listening.';
+      this.cdr.detectChanges();
+    }
+  }
 
-  // --- Main Feature Logic ---
+  // ----------- AI VOICE QUESTION SPEAKING ----------
+  speak(text: string, onEndCallback: () => void): void {
+    if (!('speechSynthesis' in window)) {
+      onEndCallback();
+      return;
+    }
+    this.statusText = 'Interviewer is asking a question...';
+    const utterance = new window.SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.95;
+    // Prefer female voice if available
+    const voices = window.speechSynthesis.getVoices();
+    utterance.voice = voices.find(v => v.name.toLowerCase().includes('female')) || null;
+    utterance.onend = onEndCallback;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  // ----------- INTERVIEW LOGIC -----------
   onStartInterview(): void {
-    if (this.setupForm.invalid) { return; }
+    if (this.setupForm.invalid) return;
     this.isLoading = true;
     this.errorMessage = null;
     const userId = this.currentUser?._id;
-    if (!userId) {
-        this.errorMessage = "User not found. Please log in again.";
-        this.isLoading = false;
-        return;
-    }
-    const formData = { userId, ...this.setupForm.value };
-
+    const formData = {
+      userId,
+      ...this.setupForm.value,
+      customQuestions: this.customQuestions,
+      questionCount: this.questionCount,
+      timeLimit: this.timeLimit
+    };
     this.mockInterviewService.startInterview(formData).subscribe({
       next: (response) => {
         this.sessionData = response;
         this.interviewState = 'in_progress';
         this.isLoading = false;
-        this.cdr.detectChanges(); 
+        // Voice: speak question and start listening
         if (this.interviewMode === 'voice') {
           this.speak(response.questionText, () => {
             this.startListening();
           });
         }
+        this.cdr.detectChanges();
       },
-      error: (err) => {
-        this.errorMessage = 'Failed to start the interview. Please try again.';
+      error: () => {
+        this.errorMessage = 'Failed to start interview.';
         this.isLoading = false;
         this.cdr.detectChanges();
       }
@@ -211,63 +222,71 @@ export class MockInterviewComponent implements OnInit {
   }
 
   onSubmitAnswer(): void {
-    if (this.answerForm.invalid) {
-      if (this.interviewMode === 'voice') {
-        this.statusText = "I didn't catch that. Please click the mic and speak again.";
-      }
-      return;
-    }
+    if (this.answerForm.invalid) return;
     this.isLoading = true;
-    this.errorMessage = null;
     const data = {
       sessionId: this.sessionData.sessionId,
       questionNumber: this.sessionData.questionNumber,
-      userAnswer: this.answerForm.value.userAnswer
+      userAnswer: this.answerForm.value.userAnswer,
+      source: 'manual'
     };
     this.mockInterviewService.submitAnswer(data).subscribe({
       next: (response) => {
         this.answerForm.reset();
+        this.liveVoiceTranscript = '';
+        this._finalTranscript = '';
         if (response.interviewComplete) {
           this.interviewState = 'generating_feedback';
           this.getFinalReport();
         } else {
           this.sessionData = response;
-          this.isLoading = false;
+          // Autoplay next question by voice if in voice mode
           if (this.interviewMode === 'voice') {
             this.speak(response.questionText, () => {
               this.startListening();
             });
           }
         }
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to submit answer. Please try again.';
         this.isLoading = false;
         this.cdr.detectChanges();
-        console.error(err);
+      },
+      error: () => {
+        this.errorMessage = 'Failed to submit answer.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
+
   getFinalReport(): void {
     this.isLoading = true;
-    this.errorMessage = null;
     this.mockInterviewService.getResults(this.sessionData.sessionId).subscribe({
       next: (response) => {
         this.finalReport = response;
         this.interviewState = 'completed';
         this.isLoading = false;
         this.cdr.detectChanges();
-        if (this.interviewMode === 'voice') {
-          this.speak("Here is your performance report.", () => { });
-        }
       },
-      error: (err) => {
-        this.errorMessage = 'Failed to fetch your report. Please try again.';
+      error: () => {
+        this.errorMessage = 'Failed to fetch report.';
         this.isLoading = false;
         this.cdr.detectChanges();
-        console.error(err);
       }
     });
+  }
+
+  // ------- Custom Question Methods -------
+  addCustomQuestion(): void {
+    const value = this.newCustomQuestion.trim();
+    if (value && !this.customQuestions.includes(value)) {
+      this.customQuestions.push(value);
+      this.setupForm.get('customQuestions')?.setValue(this.customQuestions);
+      this.newCustomQuestion = '';
+    }
+  }
+  removeCustomQuestion(q: string): void {
+    const idx = this.customQuestions.indexOf(q);
+    if (idx >= 0) this.customQuestions.splice(idx, 1);
+    this.setupForm.get('customQuestions')?.setValue(this.customQuestions);
   }
 }

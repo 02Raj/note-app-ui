@@ -13,7 +13,6 @@
 
             <!-- === LOADING LOGIC === -->
             @if (isLoading) {
-              <!-- This container will now be styled correctly -->
               <div class="spinner-container">
                 <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
                 @if (interviewState === 'generating_feedback') {
@@ -22,190 +21,222 @@
                 }
               </div>
             } @else {
-              <!-- Saara content ab 'else' block ke andar hai -->
-              <div>
-                <!-- STEP 1: SETUP FORM -->
-                @if (interviewState === 'setup') {
-                  <div class="setup-container">
-                    <h3>Start Your Mock Interview</h3>
-                    <p class="text-muted">First, choose your preferred interview style.</p>
-                    <mat-button-toggle-group [(ngModel)]="interviewMode" class="my-4" aria-label="Interview Mode">
-                      <mat-button-toggle value="voice"><mat-icon>mic</mat-icon> Voice Interview</mat-button-toggle>
-                      <mat-button-toggle value="text"><mat-icon>chat</mat-icon> Text (Chat) Interview</mat-button-toggle>
-                    </mat-button-toggle-group>
-                    <form [formGroup]="setupForm" (ngSubmit)="onStartInterview()" class="mt-2">
-                      <div class="row">
-                        <div class="col-md-6">
-                          <mat-form-field class="example-full-width" appearance="outline">
-                            <mat-label>Job Role / Profile</mat-label>
-                            <input matInput formControlName="jobProfile" placeholder="e.g., 'Java Developer'">
-                          </mat-form-field>
-                        </div>
-                        <div class="col-md-6">
-                          <mat-form-field class="example-full-width" appearance="outline">
-                            <mat-label>Your Experience Level</mat-label>
-                            <mat-select formControlName="experience">
-                              <mat-option value="Fresher">Fresher</mat-option>
-                              <mat-option value="1-3 years">1-3 Years</mat-option>
-                              <mat-option value="3+ years">3+ Years</mat-option>
-                            </mat-select>
-                          </mat-form-field>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-12">
-                          <mat-form-field class="example-full-width" appearance="outline">
-                            <mat-label>Topics (Type and press Enter to add)</mat-label>
-                            <mat-chip-grid #chipGrid>
-                              @for (topic of topics; track topic) {
-                                <mat-chip-row (removed)="remove(topic)">
-                                  {{topic}}
-                                  <button matChipRemove><mat-icon>cancel</mat-icon></button>
-                                </mat-chip-row>
-                              }
-                            </mat-chip-grid>
-                            <input placeholder="New topic..." #topicInput [formControl]="topicCtrl"
-                              [matAutocomplete]="auto" [matChipInputFor]="chipGrid"
-                              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                              (matChipInputTokenEnd)="add($event)">
-                            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-                              @for (topic of filteredTopics | async; track topic) {
-                                <mat-option [value]="topic">{{topic}}</mat-option>
-                              }
-                            </mat-autocomplete>
-                          </mat-form-field>
-                        </div>
-                      </div>
-                      <div class="text-center mt-3">
-                        <button mat-raised-button color="primary" type="submit" [disabled]="setupForm.invalid">Start Interview</button>
-                      </div>
-                    </form>
-                  </div>
-                }
 
-                <!-- STEP 2: INTERVIEW IN PROGRESS -->
-                @if (interviewState === 'in_progress' && sessionData) {
-                  <!-- Common Progress Bar -->
-                  <mat-progress-bar mode="determinate"
-                    [value]="(sessionData.questionNumber / sessionData.totalQuestions) * 100"></mat-progress-bar>
-                  
-                  <!-- Common Question Area -->
-                  <div class="mt-4 question-area text-center">
-                    <h4>Question {{ sessionData.questionNumber }} / {{ sessionData.totalQuestions }}</h4>
-                    <p class="lead">{{ sessionData.questionText }}</p>
-                  </div>
-
-                  <!-- Voice Mode UI -->
-                  @if (interviewMode === 'voice') {
-                    <div class="voice-interview-container text-center">
-                      <div class="mic-container my-5">
-                        <button mat-fab [color]="isListening ? 'warn' : 'primary'" (click)="startListening()"
-                          [disabled]="isListening">
-                          <mat-icon [class.pulsing-mic]="isListening">mic</mat-icon>
-                        </button>
-                      </div>
-                      <div class="status-area">
-                        <p class="text-muted">{{ statusText }}</p>
-                      </div>
-                      @if(answerForm.value.userAnswer) {
-                      <div class="transcript-area mt-3">
-                        <strong>Your transcribed answer:</strong>
-                        <p><em>"{{ answerForm.value.userAnswer }}"</em></p>
-                      </div>
-                      }
+            <div>
+              <!-- STEP 1: SETUP FORM -->
+              @if (interviewState === 'setup') {
+              <div class="setup-container">
+                <h3>Start Your Mock Interview</h3>
+                <p class="text-muted">First, choose your preferred interview style.</p>
+                <mat-button-toggle-group [(ngModel)]="interviewMode" class="my-4" aria-label="Interview Mode">
+                  <mat-button-toggle value="voice"><mat-icon>mic</mat-icon> Voice Interview</mat-button-toggle>
+                  <mat-button-toggle value="text"><mat-icon>chat</mat-icon> Text (Chat) Interview</mat-button-toggle>
+                </mat-button-toggle-group>
+                <form [formGroup]="setupForm" (ngSubmit)="onStartInterview()" class="mt-2">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <mat-form-field class="example-full-width" appearance="outline">
+                        <mat-label>Job Role / Profile</mat-label>
+                        <input matInput formControlName="jobProfile" placeholder="e.g., 'Java Developer'">
+                      </mat-form-field>
                     </div>
-                  }
-
-                  <!-- Text Mode UI -->
-                  @if (interviewMode === 'text') {
-                    <div class="text-interview-container mt-3">
-                      <form [formGroup]="answerForm" (ngSubmit)="onSubmitAnswer()">
-                        <!-- Replace textarea with quill-editor -->
-                        <quill-editor formControlName="userAnswer" [styles]="{height: '200px'}"></quill-editor>
-                        <div class="text-center mt-3">
-                          <button mat-raised-button color="primary" type="submit" [disabled]="answerForm.invalid">
-                            <span>Submit Answer</span>
-                          </button>
-                        </div>
-                      </form>
+                    <div class="col-md-6">
+                      <mat-form-field class="example-full-width" appearance="outline">
+                        <mat-label>Your Experience Level</mat-label>
+                        <mat-select formControlName="experience">
+                          <mat-option value="Fresher">Fresher</mat-option>
+                          <mat-option value="1-3 years">1-3 Years</mat-option>
+                          <mat-option value="3+ years">3+ Years</mat-option>
+                        </mat-select>
+                      </mat-form-field>
                     </div>
-                  }
-                }
-
-                <!-- STEP 4: FINAL REPORT -->
-                @if (interviewState === 'completed' && finalReport) {
-                  <div class="report-container">
-                    <h3 class="report-title">Your Interview Performance Report</h3>
-                    <mat-card class="mt-3 mb-4 overall-summary-card">
-                      <mat-card-header>
-                        <mat-card-title>
-                          <div class="d-flex align-items-center">
-                            <mat-icon>assessment</mat-icon>
-                            <span class="ms-2">Overall Summary & Advice</span>
-                          </div>
-                        </mat-card-title>
-                      </mat-card-header>
-                      <mat-card-content>
-                        <p>{{ finalReport.feedback.overallSummary }}</p>
-                      </mat-card-content>
-                    </mat-card>
-                    <h4 class="analysis-title">Detailed Question Analysis</h4>
-                    @for (item of finalReport.feedback.detailedFeedback; track item.questionText) {
-                      <mat-card class="mt-3 question-feedback-card">
-                        <mat-card-content>
-                          <div class="question-answer-block">
-                            <p><strong>Question:</strong> {{ item.questionText }}</p>
-                            <p><strong>Your Answer:</strong> <span [innerHTML]="item.userAnswer | safeHtml"></span></p>
-                          </div>
-                          <hr>
-                          <div class="feedback-grid">
-                            <div class="feedback-block strengths-block">
-                              <div class="feedback-header">
-                                <mat-icon class="feedback-icon">thumb_up</mat-icon>
-                                <h5>Strengths</h5>
-                              </div>
-                              <ul>
-                                @for(strength of item.strengths; track strength) {
-                                  <li>{{strength}}</li>
-                                }
-                              </ul>
-                            </div>
-                            <div class="feedback-block improvements-block">
-                              <div class="feedback-header">
-                                <mat-icon class="feedback-icon">lightbulb</mat-icon>
-                                <h5>Areas for Improvement</h5>
-                              </div>
-                              <ul>
-                                @for(improvement of item.areasForImprovement; track improvement) {
-                                  <li>{{improvement}}</li>
-                                }
-                              </ul>
-                            </div>
-                          </div>
-                          @if(item.suggestedAnswer) {
-                            <div class="feedback-block answer-block mt-3">
-                              <div class="feedback-header">
-                                 <mat-icon class="feedback-icon">edit_note</mat-icon>
-                                 <h5>Suggested Answer</h5>
-                              </div>
-                              <p [innerHTML]="item.suggestedAnswer | safeHtml"></p>
-                            </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <mat-form-field class="example-full-width" appearance="outline">
+                        <mat-label>Topics (Type and press Enter)</mat-label>
+                        <mat-chip-grid #chipGrid>
+                          @for (topic of topics; track topic) {
+                            <mat-chip-row (removed)="removeTopic(topic)">
+                              {{topic}}
+                              <button matChipRemove><mat-icon>cancel</mat-icon></button>
+                            </mat-chip-row>
                           }
-                        </mat-card-content>
-                      </mat-card>
-                    }
+                        </mat-chip-grid>
+                        <input placeholder="New topic..." #topicInput [formControl]="topicCtrl"
+                          [matAutocomplete]="auto" [matChipInputFor]="chipGrid"
+                          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                          (matChipInputTokenEnd)="addTopic($event)">
+                        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedTopic($event)">
+                          @for (topic of filteredTopics | async; track topic) {
+                            <mat-option [value]="topic">{{topic}}</mat-option>
+                          }
+                        </mat-autocomplete>
+                      </mat-form-field>
+                    </div>
                   </div>
-                }
+                  <div class="row">
+                    <div class="col-md-6">
+                      <mat-form-field class="example-full-width" appearance="outline">
+                        <mat-label>Number of Questions</mat-label>
+                        <input matInput type="number" formControlName="questionCount" [(ngModel)]="questionCount">
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                      <mat-form-field class="example-full-width" appearance="outline">
+                        <mat-label>Time Limit (minutes)</mat-label>
+                        <input matInput type="number" formControlName="timeLimit" [(ngModel)]="timeLimit">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <mat-form-field class="example-full-width" appearance="outline">
+                        <mat-label>Add Custom Question</mat-label>
+                        <textarea matInput [(ngModel)]="newCustomQuestion" (keyup.enter)="addCustomQuestion()"></textarea>
+                        <button mat-mini-fab color="primary" (click)="addCustomQuestion()" [disabled]="!newCustomQuestion">
+                          <mat-icon>add</mat-icon>
+                        </button>
+                      </mat-form-field>
+                      <mat-chip-list>
+                        <mat-chip *ngFor="let q of customQuestions" removable (removed)="removeCustomQuestion(q)">
+                          {{q}}
+                          <button matChipRemove><mat-icon>cancel</mat-icon></button>
+                        </mat-chip>
+                      </mat-chip-list>
+                    </div>
+                  </div>
+                  <div class="text-center mt-3">
+                    <button mat-raised-button color="primary" type="submit" [disabled]="setupForm.invalid">Start Interview</button>
+                  </div>
+                </form>
+              </div>
+              }
 
-                <!-- Global Error Message -->
-                @if (errorMessage) {
-                  <div class="error-message text-danger text-center mt-3">
-                    {{ errorMessage }}
+              <!-- STEP 2: INTERVIEW IN PROGRESS -->
+              @if (interviewState === 'in_progress' && sessionData) {
+              <mat-progress-bar mode="determinate"
+                [value]="(sessionData.questionNumber / sessionData.totalQuestions) * 100"></mat-progress-bar>
+              <div class="mt-4 question-area text-center">
+                <h4>Question {{ sessionData.questionNumber }} / {{ sessionData.totalQuestions }}</h4>
+                <p class="lead">{{ sessionData.questionText }}</p>
+              </div>
+              
+              <!-- Voice Mode UI -->
+              @if (interviewMode === 'voice') {
+              <div class="voice-interview-container text-center">
+                <div class="mic-container my-5">
+                  <button mat-fab [color]="isListening ? 'warn' : 'primary'" (click)="startListening()" [disabled]="isListening">
+                    <mat-icon [class.pulsing-mic]="isListening">mic</mat-icon>
+                  </button>
+                  <button mat-fab color="warn" (click)="stopListening()" [disabled]="!isListening">
+                    <mat-icon>stop</mat-icon>
+                  </button>
+                </div>
+                <div class="status-area">
+                  <p class="text-muted">{{ statusText }}</p>
+                </div>
+                @if(liveVoiceTranscript) {
+                <div class="transcript-area mt-3">
+                  <strong>Your transcribed answer:</strong>
+                  <p><em>{{ liveVoiceTranscript }}</em></p>
+                </div>
+                }
+                <button mat-raised-button color="primary" (click)="onSubmitAnswer()" [disabled]="!liveVoiceTranscript">
+                  Submit Answer
+                </button>
+              </div>
+              }
+
+              <!-- Text Mode UI -->
+              @if (interviewMode === 'text') {
+              <div class="text-interview-container mt-3">
+                <form [formGroup]="answerForm" (ngSubmit)="onSubmitAnswer()">
+                  <quill-editor formControlName="userAnswer" [styles]="{height: '200px'}"></quill-editor>
+                  <div class="text-center mt-3">
+                    <button mat-raised-button color="primary" type="submit" [disabled]="answerForm.invalid">
+                      <span>Submit Answer</span>
+                    </button>
                   </div>
+                </form>
+              </div>
+              }
+              }
+
+              <!-- STEP 4: FINAL REPORT -->
+              @if (interviewState === 'completed' && finalReport) {
+              <div class="report-container">
+                <h3 class="report-title">Your Interview Performance Report</h3>
+                <mat-card class="mt-3 mb-4 overall-summary-card">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <div class="d-flex align-items-center">
+                        <mat-icon>assessment</mat-icon>
+                        <span class="ms-2">Overall Summary & Advice</span>
+                      </div>
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <p>{{ finalReport.feedback.overallSummary }}</p>
+                  </mat-card-content>
+                </mat-card>
+                <h4 class="analysis-title">Detailed Question Analysis</h4>
+                @for (item of finalReport.feedback.detailedFeedback; track item.questionText) {
+                  <mat-card class="mt-3 question-feedback-card">
+                    <mat-card-content>
+                      <div class="question-answer-block">
+                        <p><strong>Question:</strong> {{ item.questionText }}</p>
+                        <p><strong>Your Answer:</strong> <span [innerHTML]="item.userAnswer | safeHtml"></span></p>
+                      </div>
+                      <hr>
+                      <div class="feedback-grid">
+                        <div class="feedback-block strengths-block">
+                          <div class="feedback-header">
+                            <mat-icon class="feedback-icon">thumb_up</mat-icon>
+                            <h5>Strengths</h5>
+                          </div>
+                          <ul>
+                            @for(strength of item.strengths; track strength) {
+                              <li>{{strength}}</li>
+                            }
+                          </ul>
+                        </div>
+                        <div class="feedback-block improvements-block">
+                          <div class="feedback-header">
+                            <mat-icon class="feedback-icon">lightbulb</mat-icon>
+                            <h5>Areas for Improvement</h5>
+                          </div>
+                          <ul>
+                            @for(improvement of item.areasForImprovement; track improvement) {
+                              <li>{{improvement}}</li>
+                            }
+                          </ul>
+                        </div>
+                      </div>
+                      @if(item.suggestedAnswer) {
+                        <div class="feedback-block answer-block mt-3">
+                          <div class="feedback-header">
+                            <mat-icon class="feedback-icon">edit_note</mat-icon>
+                            <h5>Suggested Answer</h5>
+                          </div>
+                          <p [innerHTML]="item.suggestedAnswer | safeHtml"></p>
+                        </div>
+                      }
+                    </mat-card-content>
+                  </mat-card>
                 }
               </div>
+              }
+
+              <!-- Global Error Message -->
+              @if (errorMessage) {
+                <div class="error-message text-danger text-center mt-3">
+                  {{ errorMessage }}
+                </div>
+              }
+            </div>
             }
-            
+
           </div>
         </div>
       </div>
