@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ResumeAnalyzerService {
+  private apiUrl = `${environment.apiUrl}/api/resume`; 
   // Aapka backend server ka URL
-  private apiUrl = 'http://localhost:5000/api/resume'; // Isko apne URL se badal lein
+  // private apiUrl = 'http://localhost:5000/api/resume'; // Isko apne URL se badal lein
 
   constructor(private http: HttpClient) { }
 
