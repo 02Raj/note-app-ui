@@ -13,6 +13,7 @@ import { NotePayload, NotesService } from '../notes.service';
 import { TopicService } from 'app/student/topic/topic.service';
 import { CreateTopicDialogComponent } from 'app/student/topic/create-topic-dialog/create-topic-dialog.component';
 import { CreateSubtopicDialogComponent } from 'app/student/topic/subtopic/create-subtopic-dialog/create-subtopic-dialog.component';
+import { Observable, tap } from 'rxjs';
 
 // Custom validator to check if Quill editor is empty
 export function quillRequiredValidator(): ValidatorFn {
@@ -93,108 +94,131 @@ export class CreateNotesDialogComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.loadTopics();
+ngOnInit(): void {
+  // Load topics and *then* if edit mode populate the form and load subtopics
+  this.loadTopics().subscribe({
+    next: () => {
+      if (this.isEditMode && this.note) {
+        // Patch title/content without triggering valueChanges for topic/subtopic
+        this.noteForm.patchValue({
+          title: this.note.title,
+          content: this.note.content,
+          topicId: this.note.topicId,
+          subtopicId: '' // set subtopic after subtopics load
+        }, { emitEvent: false });
 
-    // If in edit mode, populate the form with existing note data
-    if (this.isEditMode) {
-      this.noteForm.patchValue({
-        title: this.note.title,
-        topicId: this.note.topicId,
-        content: this.note.content
-        // subtopicId is set in onTopicChange after subtopics load
-      });
-    }
+        // set previous ids so create-new flows behave correctly
+        this.previousTopicId = this.note.topicId;
+        this.previousSubtopicId = this.note.subtopicId;
 
-    // --- Logic for Topic dropdown changes ---
-    this.noteForm.get('topicId')?.valueChanges.subscribe(value => {
-      if (value === 'createNewTopic') {
-        setTimeout(() => {
-          this.noteForm.get('topicId')?.setValue(this.previousTopicId, { emitEvent: false });
-          this.openTopicDialog();
-        });
-      } else {
-        this.previousTopicId = value;
-        this.onTopicChange(value);
+        // Now load subtopics for this topic and set the subtopic once loaded
+        this.onTopicChange(this.note.topicId);
       }
-    });
+    },
+    error: (err) => console.error('Error loading topics', err)
+  });
 
-    // --- Logic for Subtopic dropdown changes ---
-    this.noteForm.get('subtopicId')?.valueChanges.subscribe(value => {
-      if (value === 'createNewSubtopic') {
-        setTimeout(() => {
-          this.noteForm.get('subtopicId')?.setValue(this.previousSubtopicId, { emitEvent: false });
-          this.openSubtopicDialog();
-        });
-      } else {
-        this.previousSubtopicId = value;
-      }
-    });
-  }
-
-  loadTopics(): void {
-    this.topicService.getAllTopics().subscribe({
-      next: (response) => this.topics = response.data || [],
-      error: (err) => console.error('Error loading topics', err)
-    });
-  }
-
-  onTopicChange(topicId: string): void {
-    this.subtopics = [];
-    this.noteForm.get('subtopicId')?.setValue('');
-
-    if (topicId) {
-      this.topicService.getSubtopicsByTopic(topicId).subscribe({
-        next: (response) => {
-          this.subtopics = response.data || [];
-          // If in edit mode, and the loaded topic is the note's original topic,
-          // then set the subtopic value.
-          if (this.isEditMode && this.note && this.note.topicId === topicId) {
-            this.noteForm.get('subtopicId')?.setValue(this.note.subtopicId);
-          }
-        },
-        error: (err) => console.error('Error loading subtopics', err)
-      });
-    }
-  }
-
-  onSave(): void {
-    if (this.noteForm.invalid) {
-      this.noteForm.markAllAsTouched(); // Show validation errors on all fields
-      console.log('Form is invalid. Please fill all required fields.');
-      // Optional: Log invalid controls for debugging
-      Object.keys(this.noteForm.controls).forEach(field => {
-        const control = this.noteForm.get(field);
-        if (control?.invalid) {
-          console.log(`Field -> '${field}' is invalid. Errors:`, control.errors);
-        }
-      });
-      return;
-    }
-
-    const payload: NotePayload = this.noteForm.value;
-
-    if (this.isEditMode) {
-      // --- UPDATE NOTE LOGIC ---
-      this.notesService.updateNote(this.note._id, payload).subscribe({
-        next: (response) => {
-          console.log('Note updated successfully!', response);
-          this.dialogRef.close(true); // Close dialog and signal success
-        },
-        error: (err) => console.error('Error updating note', err)
+  // --- Logic for Topic dropdown changes ---
+  this.noteForm.get('topicId')?.valueChanges.subscribe(value => {
+    if (value === 'createNewTopic') {
+      setTimeout(() => {
+        this.noteForm.get('topicId')?.setValue(this.previousTopicId, { emitEvent: false });
+        this.openTopicDialog();
       });
     } else {
-      // --- CREATE NOTE LOGIC ---
-      this.notesService.createNote(payload).subscribe({
-        next: (response) => {
-          console.log('Note created successfully!', response);
-          this.dialogRef.close(true); // Close dialog and signal success
-        },
-        error: (err) => console.error('Error creating note', err)
-      });
+      this.previousTopicId = value;
+      this.onTopicChange(value);
     }
+  });
+
+  // --- Logic for Subtopic dropdown changes ---
+  this.noteForm.get('subtopicId')?.valueChanges.subscribe(value => {
+    if (value === 'createNewSubtopic') {
+      setTimeout(() => {
+        this.noteForm.get('subtopicId')?.setValue(this.previousSubtopicId, { emitEvent: false });
+        this.openSubtopicDialog();
+      });
+    } else {
+      this.previousSubtopicId = value;
+    }
+  });
+}
+
+// Return an observable so caller can wait for completion (useful for edit mode)
+loadTopics(): Observable<any> {
+  return this.topicService.getAllTopics().pipe(
+    tap((response) => this.topics = response.data || [])
+  );
+}
+
+onTopicChange(topicId: string): void {
+  this.subtopics = [];
+  // Clear subtopic value without emitting a change event that would try to create new
+  this.noteForm.get('subtopicId')?.setValue('', { emitEvent: false });
+
+  if (topicId) {
+    this.topicService.getSubtopicsByTopic(topicId).subscribe({
+      next: (response) => {
+        this.subtopics = response.data || [];
+
+        // If in edit mode and the loaded topic is the note's original topic,
+        // then set the subtopic value (use emitEvent:false to avoid loops)
+        if (this.isEditMode && this.note && this.note.topicId === topicId && this.note.subtopicId) {
+          // Only set if the subtopic exists in the returned list (optional safety)
+          const exists = this.subtopics.some(s => s._id === this.note.subtopicId);
+          if (exists) {
+            this.noteForm.get('subtopicId')?.setValue(this.note.subtopicId, { emitEvent: false });
+          } else {
+            // If not found, you may want to keep previousSubtopicId or show a warning
+            console.warn('Note subtopic not found in current topic subtopics.');
+            this.noteForm.get('subtopicId')?.setValue('', { emitEvent: false });
+          }
+        }
+      },
+      error: (err) => console.error('Error loading subtopics', err)
+    });
   }
-  
+}
+
+
+  onSave(): void {
+  if (this.noteForm.invalid) {
+    this.noteForm.markAllAsTouched();
+    return;
+  }
+
+  const payload: NotePayload = this.noteForm.value;
+
+  if (this.isEditMode) {
+    // UPDATE
+    this.notesService.updateNote(this.note._id, payload).subscribe({
+      next: (response) => {
+        console.log('Note updated successfully!', response);
+
+        this.dialogRef.close({
+          status: 'success',
+          mode: 'edit',
+          updatedNote: response.data
+        });
+      },
+      error: (err) => console.error('Error updating note', err)
+    });
+  } else {
+    // CREATE
+    this.notesService.createNote(payload).subscribe({
+      next: (response) => {
+        console.log('Note created successfully!', response);
+
+        this.dialogRef.close({
+          status: 'success',
+          mode: 'create'
+        });
+      },
+      error: (err) => console.error('Error creating note', err)
+    });
+  }
+}
+
   onContentChanged(event: any): void {
     // This function is correctly bound in the template.
     // The custom validator handles the 'required' check automatically.

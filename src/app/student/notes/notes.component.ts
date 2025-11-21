@@ -147,8 +147,6 @@ deleteItem(row: Note) {
     this.notesService.deleteNote(row._id).subscribe({
       next: (res) => {
         console.log('Note deleted successfully:', res);
-        
-        // table refresh karne ke liye dataSource se item remove karo
         this.dataSource.data = this.dataSource.data.filter(
           (note: Note) => note._id !== row._id
         );
@@ -162,20 +160,42 @@ deleteItem(row: Note) {
 
 openCreateDialog(noteData: any = null): void {
   const dialogRef = this.dialog.open(CreateNotesDialogComponent, {
-       width: '1000px',
-      maxWidth: '90vw',
-    data: noteData // 👈 pass noteData (null for create, object for edit)
+    width: '1000px',
+    maxWidth: '90vw',
+    data: noteData
   });
 
   dialogRef.afterClosed().subscribe(result => {
-    console.log("success",result)
-    if (result === 'success') {
-      this.loadTopics()
-      console.log("rrrr")
-      this.refresh(); // or reload notes
+    console.log("result",result);
+    
+    if (!result) return;
+
+    // CREATE MODE → full refresh
+    if (result.status === 'success' && result.mode === 'create') {
+      this.loadTopics();
+      this.refresh();
+    }
+
+    // EDIT MODE → No API call, no reload
+    if (result.status === 'success' && result.mode === 'edit') {
+      this.updateRowInTable(result.updatedNote);
     }
   });
 }
+
+updateRowInTable(updatedNote: any): void {
+  let data = this.dataSource.data;
+  console.log("data",data);
+  
+  const index = data.findIndex(n => n._id === updatedNote._id);
+  console.log("data",index);
+
+  if (index !== -1) {
+    data[index] = updatedNote;
+    this.dataSource.data = [...data]; //
+  }
+}
+
 
 
   refresh() {
