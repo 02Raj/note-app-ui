@@ -203,11 +203,16 @@ updateRowInTable(updatedNote: any): void {
     this.getAllNotes();
   }
 
-  viewNote(note: any): void {
-    this.dialog.open(NoteDetailsComponent, {
-     width: '1000px',
-      maxWidth: '90vw',
-      data: note
-    });
-  }
+viewNote(note: any): void {
+  this.dialog.open(NoteDetailsComponent, {
+    width: '1000px',
+    maxWidth: '90vw',
+    data: {
+      note,                                      // correct
+      openEdit: (note: any) => this.openCreateDialog(note)  // correct
+    }
+  });
+}
+
+
 }

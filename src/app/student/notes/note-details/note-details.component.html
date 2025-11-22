@@ -21,6 +21,15 @@
   </div>
 
   <div mat-dialog-actions class="modal-actions">
+
+     <button mat-icon-button 
+          color="primary" 
+          (click)="onEdit()" 
+          [disabled]="isLoading"
+          matTooltip="Edit Note">
+    <mat-icon>edit</mat-icon>
+  </button>
+
     <!-- Close button for general viewing -->
     <button mat-stroked-button color="warn" type="button" (click)="onCancel()" [disabled]="isLoading">Close</button>
     

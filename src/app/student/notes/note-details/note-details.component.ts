@@ -28,12 +28,22 @@ export class NoteDetailsComponent {
   };
   
   isLoading = false;
+note: any;
+openEditCallback: any;
 
-  constructor(
-    public dialogRef: MatDialogRef<NoteDetailsComponent>,
-    @Inject(MAT_DIALOG_DATA) public note: any,
-    private notesService: NotesService // Inject the service
-  ) {}
+constructor(
+  public dialogRef: MatDialogRef<NoteDetailsComponent>,
+  @Inject(MAT_DIALOG_DATA) public data: any,
+  private notesService: NotesService
+) {
+  console.log("MAT_DIALOG_DATA received:", data);
+
+  this.note = data.note;                 // ✔ Correct
+  this.openEditCallback = data.openEdit; // ✔ Correct
+}
+
+
+
 
   /**
    * Called when the "Revision Complete" button is clicked.
@@ -61,4 +71,17 @@ export class NoteDetailsComponent {
     // Close the dialog and pass 'false' or nothing
     this.dialogRef.close(false);
   }
+
+  onEdit(): void {
+  try {
+    if (this.openEditCallback && typeof this.openEditCallback === 'function') {
+      this.openEditCallback(this.note);   // Parent ka openCreateDialog() call karega
+    } else {
+      console.error("Edit callback is not provided.");
+    }
+  } catch (error) {
+    console.error("Error while opening edit dialog:", error);
+  }
+}
+
 }
