@@ -1,7 +1,14 @@
 <div class="addContainer">
   <div class="modalHeader">
     <div class="modalTitle">{{ note.title }}</div>
-    <button mat-icon-button (click)="onCancel()" class="modal-close-button" type="button" [disabled]="isLoading">
+
+    <!-- Close icon in header -->
+    <button
+      mat-icon-button
+      (click)="onCancel()"
+      class="modal-close-button"
+      type="button"
+      [disabled]="isLoading">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -22,24 +29,43 @@
 
   <div mat-dialog-actions class="modal-actions">
 
-     <button mat-icon-button 
-          color="primary" 
-          (click)="onEdit()" 
-          [disabled]="isLoading"
-          matTooltip="Edit Note">
-    <mat-icon>edit</mat-icon>
-  </button>
+    <!-- Edit button -->
+    <button mat-icon-button
+            color="primary"
+            (click)="onEdit()"
+            [disabled]="isLoading"
+            matTooltip="Edit Note">
+      <mat-icon>edit</mat-icon>
+    </button>
 
-    <!-- Close button for general viewing -->
-    <button mat-stroked-button color="warn" type="button" (click)="onCancel()" [disabled]="isLoading">Close</button>
-    
+    <!-- NEW: Listen / Stop Voice button -->
+    <button mat-icon-button
+            (click)="toggleSpeak()"
+            [disabled]="isLoading || !note?.content"
+            matTooltip="{{ isSpeaking ? 'Stop Voice' : 'Listen Note' }}">
+      <mat-icon>{{ isSpeaking ? 'stop' : 'volume_up' }}</mat-icon>
+    </button>
+
+    <!-- Close button -->
+    <button mat-stroked-button
+            color="warn"
+            type="button"
+            (click)="onCancel()"
+            [disabled]="isLoading">
+      Close
+    </button>
+
     <!-- "Revision Complete" button -->
-    <button mat-flat-button color="primary" type="button" (click)="onRevisionComplete()" [disabled]="isLoading">
-        @if (isLoading) {
-          <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
-        } @else {
-          <span>Revision Complete</span>
-        }
+    <button mat-flat-button
+            color="primary"
+            type="button"
+            (click)="onRevisionComplete()"
+            [disabled]="isLoading">
+      @if (isLoading) {
+        <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+      } @else {
+        <span>Revision Complete</span>
+      }
     </button>
   </div>
 </div>
