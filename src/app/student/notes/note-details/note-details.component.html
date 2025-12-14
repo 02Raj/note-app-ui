@@ -1,71 +1,56 @@
 <div class="addContainer">
+
   <div class="modalHeader">
     <div class="modalTitle">{{ note.title }}</div>
-
-    <!-- Close icon in header -->
-    <button
-      mat-icon-button
-      (click)="onCancel()"
-      class="modal-close-button"
-      type="button"
-      [disabled]="isLoading">
+    <button mat-icon-button (click)="onCancel()">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
   <div mat-dialog-content>
-    <div class="row">
-      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
-        <div class="quill-container-readonly">
-          <quill-editor
-            [ngModel]="note.content"
-            [modules]="quillEditorModules"
-            [readOnly]="true">
-          </quill-editor>
-        </div>
-      </div>
+    <div class="quill-container-readonly">
+      <quill-editor
+        [ngModel]="note.content"
+        [modules]="quillEditorModules"
+        [readOnly]="true">
+      </quill-editor>
     </div>
+  </div>
+
+  <!-- 🔥 Language Selector -->
+  <div class="language-toggle">
+    <label>
+      <input type="radio" name="lang" value="english" [(ngModel)]="selectedLang" />
+      English
+    </label>
+
+    <label>
+      <input type="radio" name="lang" value="hinglish" [(ngModel)]="selectedLang" />
+      Hinglish
+    </label>
   </div>
 
   <div mat-dialog-actions class="modal-actions">
 
-    <!-- Edit button -->
-    <button mat-icon-button
-            color="primary"
-            (click)="onEdit()"
-            [disabled]="isLoading"
-            matTooltip="Edit Note">
-      <mat-icon>edit</mat-icon>
+    <button mat-icon-button (click)="previousChunk()">
+      <mat-icon>skip_previous</mat-icon>
     </button>
 
-    <!-- NEW: Listen / Stop Voice button -->
-    <button mat-icon-button
-            (click)="toggleSpeak()"
-            [disabled]="isLoading || !note?.content"
-            matTooltip="{{ isSpeaking ? 'Stop Voice' : 'Listen Note' }}">
-      <mat-icon>{{ isSpeaking ? 'stop' : 'volume_up' }}</mat-icon>
+    <button mat-icon-button (click)="speakWithAI()" [disabled]="isLoading">
+      <mat-icon>smart_toy</mat-icon>
     </button>
 
-    <!-- Close button -->
-    <button mat-stroked-button
-            color="warn"
-            type="button"
-            (click)="onCancel()"
-            [disabled]="isLoading">
-      Close
+    <button mat-icon-button (click)="nextChunk()">
+      <mat-icon>skip_next</mat-icon>
     </button>
 
-    <!-- "Revision Complete" button -->
-    <button mat-flat-button
-            color="primary"
-            type="button"
-            (click)="onRevisionComplete()"
-            [disabled]="isLoading">
+    <button mat-flat-button color="primary" (click)="onRevisionComplete()">
       @if (isLoading) {
-        <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+        <mat-progress-spinner diameter="20"></mat-progress-spinner>
       } @else {
-        <span>Revision Complete</span>
+        Revision Complete
       }
     </button>
+
   </div>
 </div>

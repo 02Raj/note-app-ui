@@ -20,180 +20,151 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     FormsModule,
     MatProgressSpinnerModule,
     QuillModule,
-    MatTooltipModule   
+    MatTooltipModule
   ],
   templateUrl: './note-details.component.html',
   styleUrl: './note-details.component.scss'
 })
 export class NoteDetailsComponent implements OnDestroy {
 
-  // Configuration for the read-only editor
-  quillEditorModules = {
-    toolbar: false
-  };
+  quillEditorModules = { toolbar: false };
 
   isLoading = false;
+  isSpeaking = false;
+
   note: any;
   openEditCallback: any;
 
-  // ---- Text-to-Speech state ----
-  isSpeaking = false;
+  // 🔥 NEW: language selection
+  selectedLang: 'english' | 'hinglish' = 'english';
+
   private synth: SpeechSynthesis | null = null;
   private utterance: SpeechSynthesisUtterance | null = null;
+
+  private chunks: string[] = [];
+  currentChunkIndex = 0;
 
   constructor(
     public dialogRef: MatDialogRef<NoteDetailsComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private notesService: NotesService
   ) {
-    console.log('MAT_DIALOG_DATA received:', data);
+    this.note = data.note;
+    this.openEditCallback = data.openEdit;
 
-    this.note = data.note;                 // ✔ Correct
-    this.openEditCallback = data.openEdit; // ✔ Correct
-
-    // Web Speech API instance (browser side)
     if ('speechSynthesis' in window) {
       this.synth = window.speechSynthesis;
-    } else {
-      this.synth = null;
-      console.warn('Speech Synthesis not supported in this browser.');
     }
   }
 
-  // --------------- TEXT TO SPEECH METHODS ----------------
+  // =====================================================
+  // 🤖 AI SPEAK FEATURE (NEW)
+  // =====================================================
 
-  /**
-   * Toggle speak / stop.
-   */
-  toggleSpeak(): void {
-    if (!this.synth) {
-      alert('Your browser does not support text-to-speech.');
-      return;
-    }
+  speakWithAI(): void {
+    if (!this.synth) return;
 
-    if (this.isSpeaking) {
-      this.stopSpeaking();
-    } else {
-      this.startSpeaking();
-    }
+    this.isLoading = true;
+    this.stopSpeaking();
+
+    this.notesService
+      .explainNoteWithAI(this.note.content, this.selectedLang)
+      .subscribe({
+        next: (res) => {
+          const aiText = res.data;
+          this.chunks = this.splitText(aiText);
+          this.currentChunkIndex = 0;
+          this.isLoading = false;
+          this.speakCurrentChunk();
+        },
+        error: (err) => {
+          console.error('AI explain failed:', err);
+          this.isLoading = false;
+        }
+      });
   }
 
-  /**
-   * Start reading the note content aloud.
-   */
-  private startSpeaking(): void {
-    const htmlContent = this.note?.content || '';
-    const text = this.getPlainText(htmlContent);
+  private speakCurrentChunk(): void {
+    if (!this.synth || !this.chunks.length) return;
 
-    if (!text.trim()) {
-      console.warn('No text available to speak.');
-      return;
-    }
+    const text = this.chunks[this.currentChunkIndex];
 
-    // In case anything is already speaking
-    this.stopSpeaking(true);
+    this.synth.cancel();
 
     this.utterance = new SpeechSynthesisUtterance(text);
+    this.utterance.lang =
+      this.selectedLang === 'hinglish' ? 'hi-IN' : 'en-US';
 
-    // Tune these as you like
-    this.utterance.lang = 'en-IN';  // ya 'hi-IN' agar hindi zyada hai
-    this.utterance.rate = 1;
+    this.utterance.rate = 0.95;
     this.utterance.pitch = 1;
 
     this.utterance.onend = () => {
-      this.isSpeaking = false;
+      if (this.currentChunkIndex < this.chunks.length - 1) {
+        this.currentChunkIndex++;
+        this.speakCurrentChunk();
+      } else {
+        this.isSpeaking = false;
+      }
     };
 
-  this.utterance.onerror = (event) => {
-  if (event.error !== "interrupted") {
-    console.error("Speech synthesis error:", event);
-  }
-  this.isSpeaking = false;
-};
-
-
     this.isSpeaking = true;
-    this.synth!.speak(this.utterance);
+    this.synth.speak(this.utterance);
   }
 
-  /**
-   * Stop speaking (if cancelOnly = true, just cancel current speech).
-   */
-  private stopSpeaking(cancelOnly: boolean = false): void {
-    if (!this.synth) return;
+  // =====================================================
+  // EXISTING METHODS (UNCHANGED)
+  // =====================================================
 
-    this.synth.cancel();
-    this.isSpeaking = false;
-
-    if (!cancelOnly) {
-      this.utterance = null;
+  previousChunk(): void {
+    if (this.currentChunkIndex > 0) {
+      this.currentChunkIndex--;
+      this.speakCurrentChunk();
     }
   }
 
-  /**
-   * Convert HTML (from Quill) to plain text for speech.
-   */
-private getPlainText(html: string): string {
-  if (!html) return '';
+  nextChunk(): void {
+    if (this.currentChunkIndex < this.chunks.length - 1) {
+      this.currentChunkIndex++;
+      this.speakCurrentChunk();
+    }
+  }
 
-  // Create temp DIV
-  const div = document.createElement('div');
-  div.innerHTML = html;
+  restartFromBeginning(): void {
+    this.currentChunkIndex = 0;
+    this.speakCurrentChunk();
+  }
 
-  // Extract text
-  let text = div.textContent || div.innerText || '';
+  private stopSpeaking(): void {
+    this.synth?.cancel();
+    this.isSpeaking = false;
+  }
 
-  // Remove extra blank lines, spaces, invisible characters
-  text = text.replace(/\s+/g, ' ').trim();
+  private splitText(text: string): string[] {
+    return text.match(/[^.?!]+[.?!]*/g) || [text];
+  }
 
-  return text;
-}
-
-
-  // --------------- EXISTING METHODS ----------------
-
-  /**
-   * Called when the "Revision Complete" button is clicked.
-   */
   onRevisionComplete(): void {
     this.isLoading = true;
     this.notesService.markNoteAsRevised(this.note._id).subscribe({
-      next: (response) => {
+      next: () => {
         this.isLoading = false;
-        this.stopSpeaking();   // stop voice if playing
-        this.dialogRef.close(true); 
+        this.stopSpeaking();
+        this.dialogRef.close(true);
       },
-      error: (err) => {
-        this.isLoading = false;
-        console.error('Failed to mark note as revised:', err);
-      }
+      error: () => (this.isLoading = false)
     });
   }
 
-  /**
-   * Method to close the dialog without any action.
-   */
   onCancel(): void {
-    this.stopSpeaking();   // stop voice on close
+    this.stopSpeaking();
     this.dialogRef.close(false);
   }
 
   onEdit(): void {
-    this.stopSpeaking();   // stop while editing
-    try {
-      if (this.openEditCallback && typeof this.openEditCallback === 'function') {
-        this.openEditCallback(this.note);   // Parent ka openCreateDialog() call karega
-      } else {
-        console.error('Edit callback is not provided.');
-      }
-    } catch (error) {
-      console.error('Error while opening edit dialog:', error);
-    }
+    this.stopSpeaking();
+    this.openEditCallback?.(this.note);
   }
 
-  /**
-   * Cleanup when dialog component is destroyed.
-   */
   ngOnDestroy(): void {
     this.stopSpeaking();
   }

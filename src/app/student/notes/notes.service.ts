@@ -106,4 +106,21 @@ updateNote(id: string, payload: NotePayload): Observable<any> {
     // Corrected to send a POST request to /revisions/:id/complete
     return this.http.post(`${this.revisionApiUrl}/${noteId}/complete`, {});
   }
+
+  // ======================================================
+// 🤖 AI Explain Note (NEW FEATURE)
+// ======================================================
+
+/**
+ * Sends note content to Gemini AI for explanation
+ * @param content - HTML content of the note
+ * @param lang - 'english' | 'hinglish'
+ */
+explainNoteWithAI(content: string, lang: 'english' | 'hinglish'): Observable<any> {
+  return this.http.post(
+    `${environment.apiUrl}/gemini/note-explain`,
+    { content, lang }
+  );
+}
+
 }
