@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -33,7 +33,8 @@ import { Note } from './modal/notes.model';
     MatProgressSpinnerModule,
     MatSelectModule,
     MatFormFieldModule,
-    BreadcrumbComponent
+    BreadcrumbComponent,
+    CommonModule
   ],
   templateUrl: './notes.component.html',
   styleUrls: ['./notes.component.scss']
@@ -57,6 +58,8 @@ export class NotesComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  selectedNoteId: string | null = null;
 
   constructor(
     private notesService: NotesService,
@@ -159,6 +162,12 @@ deleteItem(row: Note) {
 }
 
 openCreateDialog(noteData: any = null): void {
+
+  // ⭐ EDIT case: jis row ko edit kiya, use mark karo
+  if (noteData && noteData._id) {
+    this.selectedNoteId = noteData._id;
+  }
+
   const dialogRef = this.dialog.open(CreateNotesDialogComponent, {
     width: '1000px',
     maxWidth: '90vw',
@@ -166,19 +175,21 @@ openCreateDialog(noteData: any = null): void {
   });
 
   dialogRef.afterClosed().subscribe(result => {
-    console.log("result",result);
-    
     if (!result) return;
 
     // CREATE MODE → full refresh
     if (result.status === 'success' && result.mode === 'create') {
+      this.selectedNoteId = null; // create pe kisi row ka context nahi
       this.loadTopics();
       this.refresh();
     }
 
-    // EDIT MODE → No API call, no reload
+    // EDIT MODE → row update + highlight
     if (result.status === 'success' && result.mode === 'edit') {
       this.updateRowInTable(result.updatedNote);
+
+      // ⭐ ensure edited row stays highlighted
+      this.selectedNoteId = result.updatedNote._id;
     }
   });
 }
@@ -204,15 +215,26 @@ updateRowInTable(updatedNote: any): void {
   }
 
 viewNote(note: any): void {
-  this.dialog.open(NoteDetailsComponent, {
+
+  // 1️⃣ save which row was clicked
+  this.selectedNoteId = note._id;
+
+  const dialogRef = this.dialog.open(NoteDetailsComponent, {
     width: '1000px',
     maxWidth: '90vw',
     data: {
-      note,                                      // correct
-      openEdit: (note: any) => this.openCreateDialog(note)  // correct
+      note,
+      openEdit: (note: any) => this.openCreateDialog(note)
     }
   });
+
+  // 2️⃣ dialog close hone ke baad bhi state rahe
+  dialogRef.afterClosed().subscribe(() => {
+    // intentionally empty
+    // selectedNoteId rehne do taaki highlight dikhe
+  });
 }
+
 
 
 }

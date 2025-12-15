@@ -141,10 +141,11 @@
 
                 <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
                 <mat-row 
-                  *matRowDef="let row; columns: displayedColumns;"
-                  (click)="viewNote(row)"
-                  class="clickable-row">
-                </mat-row>
+  *matRowDef="let row; columns: displayedColumns;"
+  (click)="viewNote(row)"
+  class="clickable-row"
+  [ngClass]="{ 'active-row': row._id === selectedNoteId }">
+</mat-row>
 
                 <tr class="mat-row" *matNoDataRow>
                   <td class="mat-cell" colspan="6">No data matching the filter</td>
