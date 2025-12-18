@@ -1,0 +1,9 @@
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.active-row {
+  background-color: #e6f7e6 !important; // light green
+  border-left: 4px solid #2e7d32;
+}
