@@ -57,21 +57,20 @@ export type areaChartOptions = {
 };
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
-  standalone: true,
-  imports: [
-    CommonModule,
-    DatePipe,
-    BreadcrumbComponent,
-    BaseChartDirective,
-    MatProgressBarModule,
-    NgApexchartsModule,
-    NgScrollbar,
-    MatButtonModule,
-    FeatherIconsComponent,
-  ],
+    selector: 'app-dashboard',
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.scss'],
+    imports: [
+        CommonModule,
+        DatePipe,
+        BreadcrumbComponent,
+        BaseChartDirective,
+        MatProgressBarModule,
+        NgApexchartsModule,
+        NgScrollbar,
+        MatButtonModule,
+        FeatherIconsComponent,
+    ]
 })
 export class DashboardComponent implements OnInit {
   @ViewChild('chart') chart!: ChartComponent;

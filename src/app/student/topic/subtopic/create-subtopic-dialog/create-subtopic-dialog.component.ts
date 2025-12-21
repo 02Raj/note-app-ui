@@ -14,17 +14,16 @@ export interface Topic {
   name: string;
 }
 @Component({
-  selector: 'app-create-subtopic-dialog',
-  standalone: true,
-  imports: [ ReactiveFormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule, 
-    MatIconModule],
-  templateUrl: './create-subtopic-dialog.component.html',
-  styleUrl: './create-subtopic-dialog.component.scss'
+    selector: 'app-create-subtopic-dialog',
+    imports: [ReactiveFormsModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatIconModule],
+    templateUrl: './create-subtopic-dialog.component.html',
+    styleUrl: './create-subtopic-dialog.component.scss'
 })
 export class CreateSubtopicDialogComponent {
   subtopicForm: FormGroup;

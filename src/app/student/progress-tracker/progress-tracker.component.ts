@@ -21,19 +21,18 @@ import { TopicService } from '../topic/topic.service';
 
 
 @Component({
-  selector: 'app-progress-tracker',
-  standalone: true,
-  imports: [
-    CommonModule, ReactiveFormsModule, DatePipe,
-    // Material Modules
-    MatTableModule, MatPaginatorModule, MatSortModule, MatFormFieldModule, MatSelectModule,
-    MatInputModule, MatButtonModule, MatIconModule, MatTooltipModule,
-    MatProgressSpinnerModule, MatProgressBarModule,
-    // Custom Components
-    BreadcrumbComponent,
-  ],
-  templateUrl: './progress-tracker.component.html',
-  styleUrl: './progress-tracker.component.scss'
+    selector: 'app-progress-tracker',
+    imports: [
+        CommonModule, ReactiveFormsModule, DatePipe,
+        // Material Modules
+        MatTableModule, MatPaginatorModule, MatSortModule, MatFormFieldModule, MatSelectModule,
+        MatInputModule, MatButtonModule, MatIconModule, MatTooltipModule,
+        MatProgressSpinnerModule, MatProgressBarModule,
+        // Custom Components
+        BreadcrumbComponent,
+    ],
+    templateUrl: './progress-tracker.component.html',
+    styleUrl: './progress-tracker.component.scss'
 })
 export class ProgressTrackerComponent implements OnInit, AfterViewInit {
   breadscrums = [{

@@ -30,28 +30,27 @@ import { SafeHtmlPipe } from '@shared/pipes/safe-html.pipe';
 declare var webkitSpeechRecognition: any;
 
 @Component({
-  selector: 'app-mock-interview',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatProgressBarModule,
-    MatIconModule,
-    MatChipsModule,
-    MatAutocompleteModule,
-    MatButtonToggleModule,
-    QuillModule,
-    BreadcrumbComponent,
-    SafeHtmlPipe,
-    ReactiveFormsModule
-  ],
-  templateUrl: './mock-interview.component.html',
-  styleUrl: './mock-interview.component.scss'
+    selector: 'app-mock-interview',
+    imports: [
+        CommonModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
+        MatProgressBarModule,
+        MatIconModule,
+        MatChipsModule,
+        MatAutocompleteModule,
+        MatButtonToggleModule,
+        QuillModule,
+        BreadcrumbComponent,
+        SafeHtmlPipe,
+        ReactiveFormsModule
+    ],
+    templateUrl: './mock-interview.component.html',
+    styleUrl: './mock-interview.component.scss'
 })
 export class MockInterviewComponent implements OnInit {
   interviewState: 'setup' | 'in_progress' | 'paused' | 'generating_feedback' | 'completed' = 'setup';

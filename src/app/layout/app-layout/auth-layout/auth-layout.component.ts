@@ -7,11 +7,10 @@ import { RouterOutlet } from '@angular/router';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 
 @Component({
-  selector: 'app-auth-layout',
-  templateUrl: './auth-layout.component.html',
-  styleUrls: [],
-  standalone: true,
-  imports: [BidiModule, RouterOutlet],
+    selector: 'app-auth-layout',
+    templateUrl: './auth-layout.component.html',
+    styleUrls: [],
+    imports: [BidiModule, RouterOutlet]
 })
 export class AuthLayoutComponent extends UnsubscribeOnDestroyAdapter {
   direction!: Direction;

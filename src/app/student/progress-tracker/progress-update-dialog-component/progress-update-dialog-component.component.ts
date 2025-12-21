@@ -18,23 +18,22 @@ import { ProgressTrackerService } from '../progress-tracker.service'; // Adjust 
 import { TopicService } from 'app/student/topic/topic.service';
 
 @Component({
-  selector: 'app-progress-update-dialog-component',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    // Material Modules
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSliderModule,
-    MatProgressSpinnerModule
-  ],
-  templateUrl: './progress-update-dialog-component.component.html',
-  styleUrl: './progress-update-dialog-component.component.scss'
+    selector: 'app-progress-update-dialog-component',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        // Material Modules
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatSliderModule,
+        MatProgressSpinnerModule
+    ],
+    templateUrl: './progress-update-dialog-component.component.html',
+    styleUrl: './progress-update-dialog-component.component.scss'
 })
 export class ProgressUpdateDialogComponentComponent implements OnInit {
   dialogTitle: string;

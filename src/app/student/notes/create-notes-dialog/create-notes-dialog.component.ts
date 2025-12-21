@@ -34,22 +34,21 @@ export function quillRequiredValidator(): ValidatorFn {
 }
 
 @Component({
-  selector: 'app-create-notes-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatIconModule,
-    QuillModule,
-    MatDividerModule,
-  ],
-  templateUrl: './create-notes-dialog.component.html',
-  styleUrls: ['./create-notes-dialog.component.scss']
+    selector: 'app-create-notes-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatIconModule,
+        QuillModule,
+        MatDividerModule,
+    ],
+    templateUrl: './create-notes-dialog.component.html',
+    styleUrls: ['./create-notes-dialog.component.scss']
 })
 export class CreateNotesDialogComponent implements OnInit {
   noteForm: FormGroup;

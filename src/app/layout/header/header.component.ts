@@ -32,20 +32,19 @@ interface Notifications {
 }
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss'],
-  standalone: true,
-  imports: [
-    RouterLink,
-    NgClass,
-    MatButtonModule,
-    MatMenuModule,
-    NgScrollbar,
-    FeatherIconsComponent,
-    MatIconModule,
-    MatToolbarModule,
-  ],
+    selector: 'app-header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.scss'],
+    imports: [
+        RouterLink,
+        NgClass,
+        MatButtonModule,
+        MatMenuModule,
+        NgScrollbar,
+        FeatherIconsComponent,
+        MatIconModule,
+        MatToolbarModule,
+    ]
 })
 export class HeaderComponent
   extends UnsubscribeOnDestroyAdapter

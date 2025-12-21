@@ -19,25 +19,24 @@ import { Note } from './modal/notes.model';
  // Assuming you have a separate model file
 
 @Component({
-  selector: 'app-notes',
-  standalone: true,
-  imports: [
-    DatePipe,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    BreadcrumbComponent,
-    CommonModule
-  ],
-  templateUrl: './notes.component.html',
-  styleUrls: ['./notes.component.scss']
+    selector: 'app-notes',
+    imports: [
+        DatePipe,
+        ReactiveFormsModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatSelectModule,
+        MatFormFieldModule,
+        BreadcrumbComponent,
+        CommonModule
+    ],
+    templateUrl: './notes.component.html',
+    styleUrls: ['./notes.component.scss']
 })
 export class NotesComponent implements OnInit, AfterViewInit {
   breadscrums = [

@@ -11,21 +11,20 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
-  selector: 'app-note-details',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    FormsModule,
-    MatProgressSpinnerModule,
-    QuillModule,
-    MatTooltipModule,
-    MatDividerModule
-  ],
-  templateUrl: './note-details.component.html',
-  styleUrl: './note-details.component.scss'
+    selector: 'app-note-details',
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        FormsModule,
+        MatProgressSpinnerModule,
+        QuillModule,
+        MatTooltipModule,
+        MatDividerModule
+    ],
+    templateUrl: './note-details.component.html',
+    styleUrl: './note-details.component.scss'
 })
 export class NoteDetailsComponent implements OnDestroy {
 

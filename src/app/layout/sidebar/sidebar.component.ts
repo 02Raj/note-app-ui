@@ -17,17 +17,16 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { UnsubscribeOnDestroyAdapter } from '@shared';
 @Component({
-  selector: 'app-sidebar',
-  templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss'],
-  standalone: true,
-  imports: [
-    NgScrollbar,
-    RouterLinkActive,
-    RouterLink,
-    NgClass,
-    TranslateModule,
-  ],
+    selector: 'app-sidebar',
+    templateUrl: './sidebar.component.html',
+    styleUrls: ['./sidebar.component.scss'],
+    imports: [
+        NgScrollbar,
+        RouterLinkActive,
+        RouterLink,
+        NgClass,
+        TranslateModule,
+    ]
 })
 export class SidebarComponent extends UnsubscribeOnDestroyAdapter implements OnInit {
   public sidebarItems!: RouteInfo[];

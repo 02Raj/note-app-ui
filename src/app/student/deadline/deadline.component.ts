@@ -15,20 +15,19 @@ import { DeadlineService } from './deadline.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DeadlinedialogComponent } from './deadlinedialog/deadlinedialog.component';
 @Component({
-  selector: 'app-deadline',
-  standalone: true,
-  imports: [ CommonModule,
-    BreadcrumbComponent,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatIconModule,
-    MatButtonModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatSelectModule,],
-  templateUrl: './deadline.component.html',
-  styleUrl: './deadline.component.scss'
+    selector: 'app-deadline',
+    imports: [CommonModule,
+        BreadcrumbComponent,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatIconModule,
+        MatButtonModule,
+        MatTooltipModule,
+        MatProgressSpinnerModule,
+        MatSelectModule,],
+    templateUrl: './deadline.component.html',
+    styleUrl: './deadline.component.scss'
 })
 export class DeadlineComponent {
   breadscrums = [

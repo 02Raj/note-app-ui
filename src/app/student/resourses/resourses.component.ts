@@ -19,25 +19,23 @@ import { UploadResourceDialogComponent } from './upload-resource-dialog/upload-r
 
 
 @Component({
-  selector: 'app-resourses',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    BreadcrumbComponent,
-    MatSelectModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
-  
-  ],
-  templateUrl: './resourses.component.html',
-  styleUrl: './resourses.component.scss'
+    selector: 'app-resourses',
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatSortModule,
+        MatPaginatorModule,
+        MatIconModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule,
+        BreadcrumbComponent,
+        MatSelectModule,
+        MatFormFieldModule,
+        ReactiveFormsModule,
+    ],
+    templateUrl: './resourses.component.html',
+    styleUrl: './resourses.component.scss'
 })
 export class ResoursesComponent implements OnInit {
   breadscrums = [{ title: 'Resources', items: ['Student'], active: 'Resources' }];

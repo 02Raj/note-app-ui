@@ -8,16 +8,15 @@ import { MatInputModule } from '@angular/material/input';
 import { TopicService } from '../topic.service';
 
 @Component({
-  selector: 'app-create-topic-dialog',
-  standalone: true,
-  imports: [ ReactiveFormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatIconModule],
-  templateUrl: './create-topic-dialog.component.html',
-  styleUrl: './create-topic-dialog.component.scss'
+    selector: 'app-create-topic-dialog',
+    imports: [ReactiveFormsModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatIconModule],
+    templateUrl: './create-topic-dialog.component.html',
+    styleUrl: './create-topic-dialog.component.scss'
 })
 export class CreateTopicDialogComponent {
   topicForm: FormGroup;

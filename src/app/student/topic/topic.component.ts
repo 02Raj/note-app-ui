@@ -21,20 +21,19 @@ export interface Topic {
   __v: number;
 }
 @Component({
-  selector: 'app-topic',
-  standalone: true,
-  imports: [ BreadcrumbComponent,
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    DatePipe,
-    MatProgressSpinnerModule,
-    MatDialogModule ],
-  templateUrl: './topic.component.html',
-  styleUrl: './topic.component.scss'
+    selector: 'app-topic',
+    imports: [BreadcrumbComponent,
+        MatTableModule,
+        MatSortModule,
+        MatPaginatorModule,
+        MatIconModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        DatePipe,
+        MatProgressSpinnerModule,
+        MatDialogModule],
+    templateUrl: './topic.component.html',
+    styleUrl: './topic.component.scss'
 })
 export class TopicComponent implements OnInit {
   breadscrums = [

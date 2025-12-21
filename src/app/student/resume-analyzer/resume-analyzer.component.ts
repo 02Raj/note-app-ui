@@ -12,21 +12,20 @@ import { ResumeAnalyzerService } from './resum-analyzer.service';
 
 
 @Component({
-  selector: 'app-resume-analyzer',
-  standalone: true,
-  imports: [
-    CommonModule,
-    BreadcrumbComponent,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatListModule,
-    MatDividerModule,
-    MatTooltipModule
-  ],
-  templateUrl: './resume-analyzer.component.html',
-  styleUrl: './resume-analyzer.component.scss'
+    selector: 'app-resume-analyzer',
+    imports: [
+        CommonModule,
+        BreadcrumbComponent,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatListModule,
+        MatDividerModule,
+        MatTooltipModule
+    ],
+    templateUrl: './resume-analyzer.component.html',
+    styleUrl: './resume-analyzer.component.scss'
 })
 export class ResumeAnalyzerComponent implements OnInit {
   breadscrums = [{ title: 'Resume Analyzer', items: ['Student'], active: 'Resume Analyzer' }];

@@ -17,21 +17,20 @@ import { NoteDetailsComponent } from '../note-details/note-details.component';
 import { SubSink } from 'subsink';
 
 @Component({
-  selector: 'app-revision',
-  standalone: true,
-  imports: [CommonModule,
-    BreadcrumbComponent,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatIconModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    DatePipe],
-  templateUrl: './revision.component.html',
-  styleUrl: './revision.component.scss'
+    selector: 'app-revision',
+    imports: [CommonModule,
+        BreadcrumbComponent,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatIconModule,
+        MatButtonModule,
+        MatDialogModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule,
+        DatePipe],
+    templateUrl: './revision.component.html',
+    styleUrl: './revision.component.scss'
 })
 export class RevisionComponent {
  // Breadcrumb configuration

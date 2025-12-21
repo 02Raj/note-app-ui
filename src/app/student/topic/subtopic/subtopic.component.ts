@@ -24,20 +24,19 @@ export interface Topic {
   __v: number;
 }
 @Component({
-  selector: 'app-subtopic',
-  standalone: true,
-  imports: [BreadcrumbComponent,
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    DatePipe,
-    MatProgressSpinnerModule,
-    MatDialogModule],
-  templateUrl: './subtopic.component.html',
-  styleUrl: './subtopic.component.scss'
+    selector: 'app-subtopic',
+    imports: [BreadcrumbComponent,
+        MatTableModule,
+        MatSortModule,
+        MatPaginatorModule,
+        MatIconModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        DatePipe,
+        MatProgressSpinnerModule,
+        MatDialogModule],
+    templateUrl: './subtopic.component.html',
+    styleUrl: './subtopic.component.scss'
 })
 export class SubtopicComponent {
   breadscrums = [

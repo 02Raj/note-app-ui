@@ -17,18 +17,17 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: 'app-right-sidebar',
-  templateUrl: './right-sidebar.component.html',
-  styleUrls: ['./right-sidebar.component.scss'],
-  standalone: true,
-  imports: [
-    NgClass,
-    FeatherIconsComponent,
-    NgScrollbar,
-    MatButtonToggleModule,
-    MatSlideToggleModule,
-  ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-right-sidebar',
+    templateUrl: './right-sidebar.component.html',
+    styleUrls: ['./right-sidebar.component.scss'],
+    imports: [
+        NgClass,
+        FeatherIconsComponent,
+        NgScrollbar,
+        MatButtonToggleModule,
+        MatSlideToggleModule,
+    ]
 })
 export class RightSidebarComponent
   extends UnsubscribeOnDestroyAdapter

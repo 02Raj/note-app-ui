@@ -18,21 +18,20 @@ import { Observable } from 'rxjs';
 // Custom Services and Models
 
 @Component({
-  selector: 'app-deadlinedialog',
-  standalone: true,
-  imports: [ CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatProgressSpinnerModule,
-    MatNativeDateModule],
-  templateUrl: './deadlinedialog.component.html',
-  styleUrl: './deadlinedialog.component.scss'
+    selector: 'app-deadlinedialog',
+    imports: [CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatDatepickerModule,
+        MatProgressSpinnerModule,
+        MatNativeDateModule],
+    templateUrl: './deadlinedialog.component.html',
+    styleUrl: './deadlinedialog.component.scss'
 })
 export class DeadlinedialogComponent {
   deadlineForm: FormGroup;

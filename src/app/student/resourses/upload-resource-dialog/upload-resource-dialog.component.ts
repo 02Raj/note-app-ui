@@ -14,20 +14,19 @@ import { TopicService } from 'app/student/topic/topic.service';
 
 
 @Component({
-  selector: 'app-upload-resource-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    CommonModule,
-    MatSelectModule, // <-- Add to imports
-  ],
-  templateUrl: './upload-resource-dialog.component.html',
-  styleUrl: './upload-resource-dialog.component.scss'
+    selector: 'app-upload-resource-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        CommonModule,
+        MatSelectModule, // <-- Add to imports
+    ],
+    templateUrl: './upload-resource-dialog.component.html',
+    styleUrl: './upload-resource-dialog.component.scss'
 })
 export class UploadResourceDialogComponent implements OnInit {
   uploadForm: FormGroup;
