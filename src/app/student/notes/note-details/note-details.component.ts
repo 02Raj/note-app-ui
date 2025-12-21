@@ -8,6 +8,7 @@ import { QuillModule } from 'ngx-quill';
 import { NotesService } from '../notes.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-note-details',
@@ -20,7 +21,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     FormsModule,
     MatProgressSpinnerModule,
     QuillModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDividerModule
   ],
   templateUrl: './note-details.component.html',
   styleUrl: './note-details.component.scss'
