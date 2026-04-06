@@ -102,8 +102,18 @@ updateNote(id: string, payload: NotePayload): Observable<any> {
    * This now sends a POST request to the correct endpoint.
    * @param noteId - The ID of the note to mark as revised.
    */
-  markNoteAsRevised(noteId: string): Observable<any> {
-    // Corrected to send a POST request to /revisions/:id/complete
-    return this.http.post(`${this.revisionApiUrl}/${noteId}/complete`, {});
+  markNoteAsRevised(noteId: string, rating: 'got_it' | 'shaky' | 'forgot' = 'got_it'): Observable<any> {
+    return this.http.post(`${this.revisionApiUrl}/${noteId}/complete`, { rating });
   }
+
+
+  getDrillNotes(): Observable<any> {
+    return this.http.get(`${this.revisionApiUrl}/drill`);
+  }
+
+
+  getWeakNotes(): Observable<any> {
+    return this.http.get(`${this.revisionApiUrl}/weak`);
+  }
+
 }

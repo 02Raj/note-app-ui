@@ -2,10 +2,8 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-// import { MatDialogModule, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-// import { MatPaginatorModule, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -19,7 +17,8 @@ import { SubSink } from 'subsink';
 @Component({
   selector: 'app-revision',
   standalone: true,
-  imports: [CommonModule,
+  imports: [
+    CommonModule,
     BreadcrumbComponent,
     MatTableModule,
     MatPaginatorModule,
@@ -29,31 +28,36 @@ import { SubSink } from 'subsink';
     MatDialogModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    DatePipe],
+    DatePipe
+  ],
   templateUrl: './revision.component.html',
   styleUrl: './revision.component.scss'
 })
 export class RevisionComponent {
- // Breadcrumb configuration
-  breadscrums = [
-    {
-      title: 'Revision',
-      items: ['Student'],
-      active: 'Due Notes',
-    },
-  ];
 
-  // Table configuration
+  breadscrums = [{ title: 'Revision', items: ['Student'], active: 'Due Notes' }];
+
+  // ── Table config ───────────────────────────────────────
   displayedColumns: string[] = ['title', 'topicName', 'revisionStage', 'revisionDueDate', 'actions'];
   dataSource!: MatTableDataSource<any>;
-  
-  // Private property to manage all subscriptions, preventing memory leaks.
   private subs = new SubSink();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   isLoading = true;
+
+  // ── Drill mode state ───────────────────────────────────
+  isDrillMode = false;
+  drillNotes: any[] = [];
+  currentDrillIndex = 0;
+  showAnswer = false;
+  isDrillLoading = false;
+  drillFinished = false;
+
+  // ── Weak notes state ───────────────────────────────────
+  weakNotes: any[] = [];
+  isWeakLoading = false;
 
   constructor(
     private notesService: NotesService,
@@ -62,6 +66,7 @@ export class RevisionComponent {
 
   ngOnInit(): void {
     this.loadDueNotes();
+    this.loadWeakNotes();
   }
 
   ngAfterViewInit(): void {
@@ -70,25 +75,19 @@ export class RevisionComponent {
       this.dataSource.sort = this.sort;
     }
   }
-  
-  /**
-   * Lifecycle hook that cleans up subscriptions when the component is destroyed.
-   */
+
   ngOnDestroy(): void {
     this.subs.unsubscribe();
   }
 
-  /**
-   * Fetches the notes due for revision from the service.
-   */
+  // ── Due Notes ──────────────────────────────────────────
   loadDueNotes(): void {
     this.isLoading = true;
     this.subs.sink = this.notesService.getDueRevisionNotes().pipe(
-      map(response => response.data) // Assuming API wraps data in a 'data' property
+      map(response => response.data)
     ).subscribe({
       next: (dueNotes) => {
         this.isLoading = false;
-        // The topic name might be nested, so we flatten it for display
         const processedNotes = dueNotes.map((note: any) => ({
           ...note,
           topicName: note.topicId ? note.topicId.name : 'N/A'
@@ -99,59 +98,116 @@ export class RevisionComponent {
       },
       error: (err) => {
         this.isLoading = false;
-        console.error("Failed to load due revision notes:", err);
+        console.error('Failed to load due revision notes:', err);
       }
     });
   }
 
-  /**
-   * Handles the search input to filter the table.
-   */
+  // ── Weak Notes ─────────────────────────────────────────
+  loadWeakNotes(): void {
+    this.isWeakLoading = true;
+    this.subs.sink = this.notesService.getWeakNotes().pipe(
+      map(response => response.data)
+    ).subscribe({
+      next: (notes) => {
+        this.isWeakLoading = false;
+        this.weakNotes = notes;
+      },
+      error: (err) => {
+        this.isWeakLoading = false;
+        console.error('Failed to load weak notes:', err);
+      }
+    });
+  }
+
+  // ── Drill Mode ─────────────────────────────────────────
+  startDrill(): void {
+    this.isDrillLoading = true;
+    this.subs.sink = this.notesService.getDrillNotes().pipe(
+      map(response => response.data)
+    ).subscribe({
+      next: (notes) => {
+        this.isDrillLoading = false;
+        this.drillNotes = notes;
+        this.currentDrillIndex = 0;
+        this.showAnswer = false;
+        this.drillFinished = false;
+        this.isDrillMode = true;
+      },
+      error: (err) => {
+        this.isDrillLoading = false;
+        console.error('Failed to load drill notes:', err);
+      }
+    });
+  }
+
+  exitDrill(): void {
+    this.isDrillMode = false;
+    this.drillFinished = false;
+    this.loadDueNotes();
+    this.loadWeakNotes();
+  }
+
+  get currentDrillNote(): any {
+    return this.drillNotes[this.currentDrillIndex];
+  }
+
+  revealAnswer(): void {
+    this.showAnswer = true;
+  }
+
+  submitRating(rating: 'got_it' | 'shaky' | 'forgot'): void {
+    const noteId = this.currentDrillNote._id;
+
+    this.notesService.markNoteAsRevised(noteId, rating).subscribe({
+      next: () => {
+        this.goToNext();
+      },
+      error: (err) => {
+        console.error('Failed to mark note:', err);
+        this.goToNext(); // skip on error
+      }
+    });
+  }
+
+  private goToNext(): void {
+    this.showAnswer = false;
+    if (this.currentDrillIndex < this.drillNotes.length - 1) {
+      this.currentDrillIndex++;
+    } else {
+      this.drillFinished = true;
+    }
+  }
+
+  // ── Table helpers ──────────────────────────────────────
   onSearch(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  /**
-   * Refreshes the list of due notes.
-   */
   refresh(): void {
     this.loadDueNotes();
+    this.loadWeakNotes();
   }
 
-  /**
-   * Opens the note details dialog to view the note.
-   * If the note is marked as revised, it reloads the list.
-   * @param note - The note object to view.
-   */
-  viewNote(note: any): void {
-    const dialogRef = this.dialog.open(NoteDetailsComponent, {
-      data: note,
-      width: '800px', // Adjust width as needed
-      autoFocus: false
-    });
+viewNote(note: any): void {
+  const dialogRef = this.dialog.open(NoteDetailsComponent, {
+    data: { note: note, openEdit: null }, 
+    width: '800px',
+    autoFocus: false
+  });
 
-    this.subs.sink = dialogRef.afterClosed().subscribe(result => {
-      // The dialog returns 'true' if the revision was completed successfully.
-      if (result === true) {
-        this.refresh(); // Reload the list to remove the completed note.
-      }
-    });
-  }
+  this.subs.sink = dialogRef.afterClosed().subscribe(result => {
+    if (result === true) {
+      this.refresh();
+    }
+  });
+}
 
-  /**
-   * Deletes a note. (You might want to disable this for the revision list)
-   * @param note - The note to delete.
-   */
   deleteItem(note: any): void {
-    // You can implement confirmation logic here if needed.
     this.subs.sink = this.notesService.deleteNote(note._id).subscribe({
-      next: () => {
-        this.refresh(); // Refresh list after deletion
-      },
-      error: (err) => {
-        console.error("Failed to delete note:", err);
-      }
+      next: () => this.refresh(),
+      error: (err) => console.error('Failed to delete note:', err)
     });
   }
 }

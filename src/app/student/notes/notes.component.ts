@@ -235,6 +235,31 @@ viewNote(note: any): void {
   });
 }
 
+markAsReviewed(row: Note): void {
+  this.notesService.markNoteAsRevised(row._id).subscribe({
+    next: (res) => {
+      console.log('Revision successful', res);
+      const updatedData = this.dataSource.data.map(note => {
+        if (note._id === row._id) {
+          return {
+            ...note,
+            revisionStage: note.revisionStage + 1,
+            revisionDueDate: res.data.nextRevisionDate
+          };
+        }
+        return note;
+      });
 
+      this.dataSource.data = updatedData;
+    },
+    error: (err) => {
+      console.error('Revision failed', err);
+    }
+  });
+}
+
+isDue(row: Note): boolean {
+  return new Date(row.revisionDueDate) <= new Date();
+}
 
 }

@@ -2,115 +2,214 @@
   <div class="content-block">
     @for (breadscrum of breadscrums; track breadscrum) {
       <div class="block-header">
-        <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items" [active_item]="breadscrum.active">
+        <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items"
+          [active_item]="breadscrum.active">
         </app-breadcrumb>
       </div>
     }
-    <div class="row">
-      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="card">
-          <div class="materialTableHeader">
-            <div class="left">
-              <ul class="header-buttons-left ms-0">
-                <li class="tbl-title">
-                  <h2>Due for Revision</h2>
-                </li>
-                <li class="tbl-search-box">
-                  <label for="search-input"><i class="material-icons search-icon">search</i></label>
-                  <input placeholder="Search" type="text" (input)="onSearch($event)"
-                    class="browser-default search-field" aria-label="Search box">
-                </li>
-              </ul>
+
+    <!-- ───── DRILL MODE ───── -->
+    @if (isDrillMode) {
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card drill-card">
+            <div class="drill-header">
+              <h2>Interview Drill 🎯</h2>
+              <span class="drill-progress">
+                {{ currentDrillIndex + 1 }} / {{ drillNotes.length }}
+              </span>
+              <button mat-stroked-button color="warn" (click)="exitDrill()">
+                <mat-icon>close</mat-icon> Exit Drill
+              </button>
             </div>
-            <div class="right">
-              <ul class="tbl-export-btn">
-                <li class="tbl-header-btn">
-                  <div class="m-l-10">
-                    <button mat-icon-button (click)="refresh()" matTooltip="Refresh">
-                      <mat-icon>refresh</mat-icon>
+
+            @if (drillFinished) {
+              <!-- Drill complete screen -->
+              <div class="drill-finished">
+                <mat-icon class="done-icon">check_circle</mat-icon>
+                <h3>Drill Complete!</h3>
+                <p>Sab notes cover ho gaye 🔥</p>
+                <button mat-flat-button color="primary" (click)="exitDrill()">
+                  Back to Revision List
+                </button>
+              </div>
+            } @else {
+              <!-- Flashcard -->
+              <div class="flashcard">
+                <div class="flashcard-question">
+                  <span class="label">Q</span>
+                  <h3>{{ currentDrillNote?.title }}</h3>
+                </div>
+
+                @if (!showAnswer) {
+                  <button mat-flat-button color="primary"
+                    class="reveal-btn" (click)="revealAnswer()">
+                    Show Answer
+                  </button>
+                } @else {
+                  <div class="flashcard-answer">
+                    <span class="label ans-label">A</span>
+                    <div [innerHTML]="currentDrillNote?.content"></div>
+                  </div>
+
+                  <div class="rating-buttons">
+                    <button mat-flat-button class="btn-forgot"
+                      (click)="submitRating('forgot')">
+                      <mat-icon>replay</mat-icon> Forgot
+                    </button>
+                    <button mat-flat-button class="btn-shaky"
+                      (click)="submitRating('shaky')">
+                      <mat-icon>thumbs_up_down</mat-icon> Shaky
+                    </button>
+                    <button mat-flat-button class="btn-gotit"
+                      (click)="submitRating('got_it')">
+                      <mat-icon>check</mat-icon> Got It!
                     </button>
                   </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="body">
-            <div class="table-responsive">
-              @if (isLoading) {
-                <div class="spinner-container">
-                  <mat-progress-spinner color="primary" [diameter]="40" mode="indeterminate">
-                  </mat-progress-spinner>
-                </div>
-              }
-
-              <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table" [hidden]="isLoading">
-
-                <!-- Title Column -->
-                <ng-container matColumnDef="title">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Title</mat-header-cell>
-                  <mat-cell *matCellDef="let row">
-                    <span class="mobile-label">Title:</span>
-                    <span class="truncate-text">{{ row.title }}</span>
-                  </mat-cell>
-                </ng-container>
-
-                <!-- Topic Column -->
-                <ng-container matColumnDef="topicName">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Topic</mat-header-cell>
-                  <mat-cell *matCellDef="let row">
-                    <span class="mobile-label">Topic:</span>
-                    {{ row.topicName }}
-                  </mat-cell>
-                </ng-container>
-
-                <!-- Revision Stage Column -->
-                <ng-container matColumnDef="revisionStage">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Revision Stage</mat-header-cell>
-                  <mat-cell *matCellDef="let row">
-                    <span class="mobile-label">Revision Stage:</span>
-                    <span class="badge badge-solid-blue">Stage {{ row.revisionStage }}</span>
-                  </mat-cell>
-                </ng-container>
-
-                <!-- Due Date Column -->
-                <ng-container matColumnDef="revisionDueDate">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</mat-header-cell>
-                  <mat-cell *matCellDef="let row">
-                    <span class="mobile-label">Due Date:</span>
-                    {{ row.revisionDueDate | date: 'mediumDate' }}
-                  </mat-cell>
-                </ng-container>
-
-                <!-- Actions Column -->
-                <ng-container matColumnDef="actions">
-                  <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
-                  <mat-cell *matCellDef="let row" class="center-align">
-                    <button mat-icon-button color="accent" (click)="$event.stopPropagation(); deleteItem(row)"
-                      class="tbl-action-btn" matTooltip="Delete">
-                      <mat-icon>delete_outline</mat-icon>
-                    </button>
-                  </mat-cell>
-                </ng-container>
-
-                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-                <mat-row 
-                  *matRowDef="let row; columns: displayedColumns;"
-                  (click)="viewNote(row)"
-                  class="clickable-row">
-                </mat-row>
-
-                <tr class="mat-row" *matNoDataRow>
-                  <td class="mat-cell" colspan="5">You have no notes due for revision today!</td>
-                </tr>
-              </table>
-
-              <mat-paginator #paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons>
-              </mat-paginator>
-
-            </div> 
+                }
+              </div>
+            }
           </div>
         </div>
       </div>
-    </div>
+
+    } @else {
+      <!-- ───── NORMAL MODE ───── -->
+      <div class="row">
+
+        <!-- Start Drill Button -->
+        <div class="col-lg-12 mb-3">
+          <button mat-flat-button color="primary"
+            [disabled]="isDrillLoading" (click)="startDrill()">
+            @if (isDrillLoading) {
+              <mat-progress-spinner mode="indeterminate" diameter="20">
+              </mat-progress-spinner>
+            } @else {
+              <mat-icon>flash_on</mat-icon> Start Interview Drill
+            }
+          </button>
+        </div>
+
+        <!-- Due Notes Table -->
+        <div class="col-lg-8 col-md-12">
+          <div class="card">
+            <div class="materialTableHeader">
+              <div class="left">
+                <ul class="header-buttons-left ms-0">
+                  <li class="tbl-title"><h2>Due for Revision</h2></li>
+                  <li class="tbl-search-box">
+                    <label for="search-input">
+                      <i class="material-icons search-icon">search</i>
+                    </label>
+                    <input placeholder="Search" type="text"
+                      (input)="onSearch($event)"
+                      class="browser-default search-field">
+                  </li>
+                </ul>
+              </div>
+              <div class="right">
+                <button mat-icon-button (click)="refresh()" matTooltip="Refresh">
+                  <mat-icon>refresh</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="body">
+              <div class="table-responsive">
+                @if (isLoading) {
+                  <div class="spinner-container">
+                    <mat-progress-spinner color="primary" [diameter]="40"
+                      mode="indeterminate">
+                    </mat-progress-spinner>
+                  </div>
+                }
+                <table mat-table [dataSource]="dataSource" matSort
+                  class="mat-cell advance-table" [hidden]="isLoading">
+
+                  <ng-container matColumnDef="title">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>Title</mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                      <span class="truncate-text">{{ row.title }}</span>
+                    </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="topicName">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>Topic</mat-header-cell>
+                    <mat-cell *matCellDef="let row">{{ row.topicName }}</mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="revisionStage">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>Stage</mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                      <span class="badge badge-solid-blue">Stage {{ row.revisionStage }}</span>
+                    </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="revisionDueDate">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                      {{ row.revisionDueDate | date: 'mediumDate' }}
+                    </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="actions">
+                    <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                      <button mat-icon-button color="accent"
+                        (click)="$event.stopPropagation(); deleteItem(row)"
+                        matTooltip="Delete">
+                        <mat-icon>delete_outline</mat-icon>
+                      </button>
+                    </mat-cell>
+                  </ng-container>
+
+                  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumns;"
+                    (click)="viewNote(row)" class="clickable-row">
+                  </mat-row>
+                  <tr class="mat-row" *matNoDataRow>
+                    <td class="mat-cell" colspan="5">
+                      No notes due for revision today!
+                    </td>
+                  </tr>
+                </table>
+
+                <mat-paginator #paginator [pageSizeOptions]="[10, 25, 50]"
+                  showFirstLastButtons>
+                </mat-paginator>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weak Notes Sidebar -->
+        <div class="col-lg-4 col-md-12">
+          <div class="card weak-card">
+            <div class="card-header">
+              <h4>⚠️ Needs Attention</h4>
+              <small>Baar baar bhoolne wale notes</small>
+            </div>
+            <div class="body">
+              @if (isWeakLoading) {
+                <mat-progress-spinner mode="indeterminate" diameter="30">
+                </mat-progress-spinner>
+              } @else if (weakNotes.length === 0) {
+                <p class="no-weak">Sab topics strong hain 💪</p>
+              } @else {
+                @for (note of weakNotes; track note._id) {
+                  <div class="weak-note-item" (click)="viewNote(note)">
+                    <div class="weak-note-title">{{ note.title }}</div>
+                    <span class="badge badge-solid-red">
+                      Skipped {{ note.skippedCount }}x
+                    </span>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </div>
+
+      </div>
+    }
   </div>
 </section>

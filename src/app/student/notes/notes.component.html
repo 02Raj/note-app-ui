@@ -1,10 +1,10 @@
 <section class="content">
   <div class="content-block">
     @for (breadscrum of breadscrums; track breadscrum) {
-      <div class="block-header">
-        <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items" [active_item]="breadscrum.active">
-        </app-breadcrumb>
-      </div>
+    <div class="block-header">
+      <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items" [active_item]="breadscrum.active">
+      </app-breadcrumb>
+    </div>
     }
     <div class="row">
       <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -49,7 +49,7 @@
                   <mat-select formControlName="topicId">
                     <mat-option value="">All Topics</mat-option>
                     @for (topic of topics; track topic) {
-                      <mat-option [value]="topic._id">{{ topic.name }}</mat-option>
+                    <mat-option [value]="topic._id">{{ topic.name }}</mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
@@ -60,19 +60,19 @@
                   <mat-select formControlName="subtopicId">
                     <mat-option value="">All Subtopics</mat-option>
                     @for (subtopic of subtopics; track subtopic) {
-                      <mat-option [value]="subtopic._id">{{ subtopic.name }}</mat-option>
+                    <mat-option [value]="subtopic._id">{{ subtopic.name }}</mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
               </div>
             </form>
-            
+
             <div class="table-responsive">
               @if (isLoading) {
-                <div class="spinner-container">
-                  <mat-progress-spinner color="primary" [diameter]="40" mode="indeterminate">
-                  </mat-progress-spinner>
-                </div>
+              <div class="spinner-container">
+                <mat-progress-spinner color="primary" [diameter]="40" mode="indeterminate">
+                </mat-progress-spinner>
+              </div>
               }
 
               <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table" [hidden]="isLoading">
@@ -118,34 +118,35 @@
                 </ng-container>
 
                 <ng-container matColumnDef="actions">
-  <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
-  <mat-cell *matCellDef="let row" class="center-align">
-    
-    <!-- Edit Icon -->
-    <button mat-icon-button color="primary"
-      (click)="$event.stopPropagation(); openCreateDialog(row)"
-      class="tbl-action-btn" matTooltip="Edit">
-      <mat-icon>edit</mat-icon>
-    </button>
+                  <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
+                  <mat-cell *matCellDef="let row" class="center-align">
 
-    <!-- Delete Icon -->
-    <button mat-icon-button color="accent"
-      (click)="$event.stopPropagation(); deleteItem(row)"
-      class="tbl-action-btn" matTooltip="Delete">
-      <mat-icon>delete_outline</mat-icon>
-    </button>
+                    <!-- Edit Icon -->
+                    <button mat-icon-button color="primary" (click)="$event.stopPropagation(); openCreateDialog(row)"
+                      class="tbl-action-btn" matTooltip="Edit">
+                      <mat-icon>edit</mat-icon>
+                    </button>
 
-  </mat-cell>
-</ng-container>
+                    <!-- Delete Icon -->
+                    <button mat-icon-button color="accent" (click)="$event.stopPropagation(); deleteItem(row)"
+                      class="tbl-action-btn" matTooltip="Delete">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+
+
+                    <button mat-icon-button color="warn" [disabled]="!isDue(row)"
+                      (click)="$event.stopPropagation(); markAsReviewed(row)">
+                      <mat-icon>done</mat-icon>
+                    </button>
+
+                  </mat-cell>
+                </ng-container>
 
 
                 <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-                <mat-row 
-  *matRowDef="let row; columns: displayedColumns;"
-  (click)="viewNote(row)"
-  class="clickable-row"
-  [ngClass]="{ 'active-row': row._id === selectedNoteId }">
-</mat-row>
+                <mat-row *matRowDef="let row; columns: displayedColumns;" (click)="viewNote(row)" class="clickable-row"
+                  [ngClass]="{ 'active-row': row._id === selectedNoteId }">
+                </mat-row>
 
                 <tr class="mat-row" *matNoDataRow>
                   <td class="mat-cell" colspan="6">No data matching the filter</td>
