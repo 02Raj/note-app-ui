@@ -26,6 +26,20 @@
               <ul class="tbl-export-btn">
                 <li class="tbl-header-btn">
                   <div class="m-l-10">
+                    <button mat-icon-button (click)="viewMode = 'list'" [class.col-green]="viewMode === 'list'" matTooltip="List View">
+                      <mat-icon>view_list</mat-icon>
+                    </button>
+                  </div>
+                </li>
+                <li class="tbl-header-btn">
+                  <div class="m-l-10">
+                    <button mat-icon-button (click)="viewMode = 'grid'" [class.col-green]="viewMode === 'grid'" matTooltip="Grid View">
+                      <mat-icon>grid_view</mat-icon>
+                    </button>
+                  </div>
+                </li>
+                <li class="tbl-header-btn">
+                  <div class="m-l-10">
                     <button mat-icon-button (click)="openCreateDialog()" class="col-green" matTooltip="Create Note">
                       <mat-icon>add_circle_outline</mat-icon>
                     </button>
@@ -75,7 +89,7 @@
               </div>
               }
 
-              <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table" [hidden]="isLoading">
+              <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table" [hidden]="isLoading || viewMode !== 'list'">
 
                 <ng-container matColumnDef="title">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Title</mat-header-cell>
@@ -152,6 +166,51 @@
                   <td class="mat-cell" colspan="6">No data matching the filter</td>
                 </tr>
               </table>
+
+              <!-- Grid View -->
+              <div class="row m-2" [hidden]="isLoading || viewMode !== 'grid'">
+                @for (row of obs$ | async; track row._id) {
+                  <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">
+                    <div class="card h-100 shadow-sm" (click)="viewNote(row)" style="cursor: pointer; border-radius: 12px; transition: transform 0.2s;" [ngClass]="{ 'active-row': row._id === selectedNoteId }" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                      <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                          <h5 class="card-title text-truncate mb-0" style="max-width: 70%; font-weight: 600;" [matTooltip]="row.title">{{ row.title }}</h5>
+                          <span class="badge badge-solid-blue" style="font-size: 0.75rem;">Stage {{ row.revisionStage }}</span>
+                        </div>
+                        <h6 class="card-subtitle mb-3 text-muted" style="font-size: 0.85rem;">{{ row.topicName }}</h6>
+                        
+                        <div class="mb-3 flex-grow-1">
+                          <div class="d-flex align-items-center mb-1">
+                            <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-right: 8px; color: #777;">event</mat-icon>
+                            <span style="font-size: 0.85rem;" class="text-muted">Due: <strong [ngClass]="{'text-danger': isDue(row)}">{{ row.revisionDueDate | date: 'mediumDate' }}</strong></span>
+                          </div>
+                          <div class="d-flex align-items-center">
+                            <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-right: 8px; color: #777;">update</mat-icon>
+                            <span style="font-size: 0.85rem;" class="text-muted">Created: {{ row.createdAt | date: 'mediumDate' }}</span>
+                          </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-auto pt-3 border-top">
+                          <button mat-icon-button color="primary" (click)="$event.stopPropagation(); openCreateDialog(row)" matTooltip="Edit">
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                          <button mat-icon-button color="accent" (click)="$event.stopPropagation(); deleteItem(row)" matTooltip="Delete">
+                            <mat-icon>delete_outline</mat-icon>
+                          </button>
+                          <button mat-icon-button color="warn" [disabled]="!isDue(row)" (click)="$event.stopPropagation(); markAsReviewed(row)" matTooltip="Mark Reviewed">
+                            <mat-icon>done</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+                @if ((obs$ | async)?.length === 0) {
+                  <div class="col-12 text-center p-4">
+                    <p>No data matching the filter</p>
+                  </div>
+                }
+              </div>
 
               <mat-paginator #paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons>
               </mat-paginator>

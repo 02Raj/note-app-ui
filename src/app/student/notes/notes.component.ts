@@ -7,6 +7,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 import { NotesService } from './notes.service';
 import { CreateNotesDialogComponent } from './create-notes-dialog/create-notes-dialog.component';
@@ -16,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TopicService } from '../topic/topic.service';
 import { Note } from './modal/notes.model';
+import { Observable } from 'rxjs';
  // Assuming you have a separate model file
 
 @Component({
@@ -34,7 +36,8 @@ import { Note } from './modal/notes.model';
     MatSelectModule,
     MatFormFieldModule,
     BreadcrumbComponent,
-    CommonModule
+    CommonModule,
+    MatTooltipModule
   ],
   templateUrl: './notes.component.html',
   styleUrls: ['./notes.component.scss']
@@ -60,6 +63,8 @@ export class NotesComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   selectedNoteId: string | null = null;
+  viewMode: 'list' | 'grid' = 'list';
+  obs$!: Observable<any>;
 
   constructor(
     private notesService: NotesService,
@@ -138,6 +143,7 @@ export class NotesComponent implements OnInit, AfterViewInit {
     this.dataSource = new MatTableDataSource(response.data || []);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.obs$ = this.dataSource.connect();
   }
 
   onSearch(event: Event) {
