@@ -268,4 +268,61 @@ isDue(row: Note): boolean {
   return new Date(row.revisionDueDate) <= new Date();
 }
 
+onAiSearch(event: Event) {
+  const query = (event.target as HTMLInputElement).value;
+  if (!query.trim()) {
+    this.refresh();
+    return;
+  }
+  
+  this.isLoading = true;
+  this.notesService.aiSearch(query).subscribe({
+    next: (res) => {
+      this.isLoading = false;
+      // We will map score into the objects or just display as is
+      this.dataSource = new MatTableDataSource(res.data || []);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+      this.obs$ = this.dataSource.connect();
+    },
+    error: (err) => {
+      this.isLoading = false;
+      console.error('AI Search failed', err);
+      alert('AI Search failed. Did you add the API key?');
+    }
+  });
+}
+
+onAiMerge() {
+  const topicId = this.filterForm.get('topicId')?.value;
+  if (!topicId) return;
+
+  const topicName = this.topics.find(t => t._id === topicId)?.name || 'Unknown Topic';
+  
+  this.isLoading = true;
+  this.notesService.aiMerge(topicId, topicName).subscribe({
+    next: (res) => {
+      this.isLoading = false;
+      if (res.status === 'success') {
+        // Open Dialog
+        const { AiMergeDialogComponent } = require('./ai-merge-dialog/ai-merge-dialog.component');
+        this.dialog.open(AiMergeDialogComponent, {
+          width: '900px',
+          maxWidth: '95vw',
+          maxHeight: '90vh',
+          data: {
+            topicName,
+            mergedContent: res.data.mergedContent
+          }
+        });
+      }
+    },
+    error: (err) => {
+      this.isLoading = false;
+      console.error('AI Merge failed', err);
+      alert('Failed to merge notes via AI. Ensure notes exist for this topic.');
+    }
+  });
+}
+
 }

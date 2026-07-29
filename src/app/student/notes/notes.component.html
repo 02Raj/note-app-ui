@@ -17,8 +17,14 @@
                 </li>
                 <li class="tbl-search-box">
                   <label for="search-input"><i class="material-icons search-icon">search</i></label>
-                  <input placeholder="Search" type="text" (input)="onSearch($event)"
+                  <input placeholder="Local Search" type="text" (input)="onSearch($event)"
                     class="browser-default search-field" aria-label="Search box">
+                </li>
+                <!-- AI Search Box -->
+                <li class="tbl-search-box ms-3" style="border: 1.5px solid #9c27b0; border-radius: 20px; background: #fafafa;">
+                  <label for="ai-search-input"><i class="material-icons search-icon" style="color: #9c27b0;">auto_awesome</i></label>
+                  <input placeholder="✨ Ask AI..." type="text" (keyup.enter)="onAiSearch($event)"
+                    class="browser-default search-field" aria-label="AI Search box" style="color: #9c27b0; width: 200px;">
                 </li>
               </ul>
             </div>
@@ -78,6 +84,13 @@
                     }
                   </mat-select>
                 </mat-form-field>
+              </div>
+              <div class="col-sm-4 text-end">
+                @if (filterForm.get('topicId')?.value) {
+                  <button mat-raised-button color="accent" (click)="onAiMerge()" [disabled]="isLoading" style="background-color: #9c27b0; color: white;">
+                    <mat-icon>auto_awesome</mat-icon> Merge Duplicates with AI
+                  </button>
+                }
               </div>
             </form>
 

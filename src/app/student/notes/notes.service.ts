@@ -116,4 +116,25 @@ updateNote(id: string, payload: NotePayload): Observable<any> {
     return this.http.get(`${this.revisionApiUrl}/weak`);
   }
 
+  // ======================================================
+  // AI Features
+  // ======================================================
+
+  /**
+   * Search notes semantically using AI embeddings.
+   * @param query - The user's search text.
+   */
+  aiSearch(query: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/ai/search`, { query });
+  }
+
+  /**
+   * Deduplicate and merge notes for a specific topic.
+   * @param topicId - The ID of the topic.
+   * @param topicName - The name of the topic for context.
+   */
+  aiMerge(topicId: string, topicName: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/ai/merge`, { topicId, topicName });
+  }
+
 }
