@@ -79,15 +79,15 @@
 
         <!-- Start Drill Button -->
         <div class="col-lg-12 mb-3">
-          <button mat-flat-button color="primary"
-            [disabled]="isDrillLoading" (click)="startDrill()">
-            @if (isDrillLoading) {
-              <mat-progress-spinner mode="indeterminate" diameter="20">
-              </mat-progress-spinner>
-            } @else {
+          @if (isDrillLoading) {
+            <button mat-flat-button color="primary" disabled>
+              <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+            </button>
+          } @else {
+            <button mat-flat-button color="primary" (click)="startDrill()">
               <mat-icon>flash_on</mat-icon> Start Interview Drill
-            }
-          </button>
+            </button>
+          }
         </div>
 
         <!-- Due Notes Table -->

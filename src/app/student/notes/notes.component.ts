@@ -18,6 +18,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TopicService } from '../topic/topic.service';
 import { Note } from './modal/notes.model';
 import { Observable } from 'rxjs';
+import { AiMergeDialogComponent } from './ai-merge-dialog/ai-merge-dialog.component';
  // Assuming you have a separate model file
 
 @Component({
@@ -305,7 +306,6 @@ onAiMerge() {
       this.isLoading = false;
       if (res.status === 'success') {
         // Open Dialog
-        const { AiMergeDialogComponent } = require('./ai-merge-dialog/ai-merge-dialog.component');
         this.dialog.open(AiMergeDialogComponent, {
           width: '900px',
           maxWidth: '95vw',
