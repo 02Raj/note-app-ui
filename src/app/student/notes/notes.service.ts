@@ -45,6 +45,16 @@ updateNote(id: string, payload: NotePayload): Observable<any> {
   return this.http.put(`${this.noteApiUrl}/${id}`, payload);
 }
 
+/** Quickly update only the priority of a note */
+updateNotePriority(id: string, priority: 'low' | 'medium' | 'high'): Observable<any> {
+  return this.http.put(`${this.noteApiUrl}/${id}`, { priority });
+}
+
+/** Quickly update only the color of a note (pass null to clear) */
+updateNoteColor(id: string, color: string | null): Observable<any> {
+  return this.http.put(`${this.noteApiUrl}/${id}`, { color });
+}
+
   /**
    * Gets all notes for the current user.
    */

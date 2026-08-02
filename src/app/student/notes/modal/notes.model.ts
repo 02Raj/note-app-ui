@@ -7,4 +7,6 @@ export interface Note {
     revisionStage: number;
     revisionDueDate: string; 
     createdAt: string;
+    priority?: 'low' | 'medium' | 'high';
+    color?: string | null;
   }
