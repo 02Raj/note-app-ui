@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
@@ -55,7 +56,8 @@ const NOTE_COLORS = [
     MatNativeDateModule,
     BreadcrumbComponent,
     CommonModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatMenuModule
   ],
   templateUrl: './notes.component.html',
   styleUrls: ['./notes.component.scss']
@@ -69,7 +71,7 @@ export class NotesComponent implements OnInit, AfterViewInit {
     },
   ];
 
-  displayedColumns: string[] = ['color', 'title', 'topicName', 'priority', 'revisionStage', 'revisionDueDate', 'createdAt', 'actions'];
+  displayedColumns: string[] = ['color', 'title', 'priority', 'revisionStage', 'revisionDueDate', 'createdAt', 'actions'];
   dataSource!: MatTableDataSource<Note>;
   isLoading = true;
 
@@ -80,6 +82,7 @@ export class NotesComponent implements OnInit, AfterViewInit {
   // ── Color palette exposed to template ──
   noteColors = NOTE_COLORS;
   activeColorPicker: string | null = null; // holds _id of row whose picker is open
+  colorPickerPos: { top: number; left: number } = { top: 0, left: 0 };
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -243,7 +246,18 @@ export class NotesComponent implements OnInit, AfterViewInit {
   // ── Color picker ──
   toggleColorPicker(rowId: string, event: Event) {
     event.stopPropagation();
-    this.activeColorPicker = this.activeColorPicker === rowId ? null : rowId;
+    if (this.activeColorPicker === rowId) {
+      this.activeColorPicker = null;
+      return;
+    }
+    // Calculate fixed position from the swatch button
+    const btn = (event.currentTarget as HTMLElement);
+    const rect = btn.getBoundingClientRect();
+    this.colorPickerPos = {
+      top: rect.bottom + 6,
+      left: rect.left
+    };
+    this.activeColorPicker = rowId;
   }
 
   setColor(row: Note, color: string | null, event: Event) {

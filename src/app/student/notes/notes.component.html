@@ -183,7 +183,10 @@
 
                       <!-- Color Picker Popup -->
                       @if (activeColorPicker === row._id) {
-                        <div class="color-picker-popup" (click)="$event.stopPropagation()">
+                        <div class="color-picker-popup"
+                          [style.top.px]="colorPickerPos.top"
+                          [style.left.px]="colorPickerPos.left"
+                          (click)="$event.stopPropagation()">
                           <div class="color-grid">
                             @for (c of noteColors; track c.value) {
                               <button class="color-dot"
@@ -207,21 +210,18 @@
                   </mat-cell>
                 </ng-container>
 
-                <!-- Title Column -->
+
+                <!-- Title Column (with topic as subtitle) -->
                 <ng-container matColumnDef="title">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Title</mat-header-cell>
                   <mat-cell *matCellDef="let row">
                     <span class="mobile-label">Title:</span>
-                    <span class="truncate-text">{{ row.title }}</span>
-                  </mat-cell>
-                </ng-container>
-
-                <!-- Topic Column -->
-                <ng-container matColumnDef="topicName">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Topic</mat-header-cell>
-                  <mat-cell *matCellDef="let row">
-                    <span class="mobile-label">Topic:</span>
-                    {{ row.topicName }}
+                    <div class="title-cell">
+                      <span class="truncate-text" style="font-weight:500;">{{ row.title }}</span>
+                      @if (row.topicName) {
+                        <span class="topic-subtitle">{{ row.topicName }}</span>
+                      }
+                    </div>
                   </mat-cell>
                 </ng-container>
 
@@ -229,23 +229,36 @@
                 <ng-container matColumnDef="priority">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Priority</mat-header-cell>
                   <mat-cell *matCellDef="let row" (click)="$event.stopPropagation()">
-                    <div class="priority-cell">
-                      <span [class]="'priority-badge ' + getPriorityClass(row.priority)">
-                        <mat-icon class="priority-icon">{{ getPriorityIcon(row.priority) }}</mat-icon>
-                        {{ row.priority || 'medium' | titlecase }}
-                      </span>
-                      <!-- Quick-change priority dropdown -->
-                      <mat-select class="priority-select"
-                        [value]="row.priority || 'medium'"
-                        (selectionChange)="onPriorityChange(row, $event.value)"
-                        matTooltip="Change priority">
-                        <mat-option value="high">🔴 High</mat-option>
-                        <mat-option value="medium">🟡 Medium</mat-option>
-                        <mat-option value="low">🟢 Low</mat-option>
-                      </mat-select>
-                    </div>
+
+                    <!-- Badge acts as the menu trigger -->
+                    <button [class]="'priority-badge ' + getPriorityClass(row.priority)"
+                      [matMenuTriggerFor]="priorityMenu"
+                      matTooltip="Click to change priority"
+                      style="border:none; cursor:pointer; display:inline-flex; align-items:center; gap:3px;">
+                      <mat-icon class="priority-icon">{{ getPriorityIcon(row.priority) }}</mat-icon>
+                      {{ (row.priority || 'medium') | titlecase }}
+                      <mat-icon class="priority-chevron">arrow_drop_down</mat-icon>
+                    </button>
+
+                    <!-- Priority dropdown menu -->
+                    <mat-menu #priorityMenu="matMenu">
+                      <button mat-menu-item (click)="onPriorityChange(row, 'high')">
+                        <mat-icon style="color:#c62828">keyboard_double_arrow_up</mat-icon>
+                        <span>High</span>
+                      </button>
+                      <button mat-menu-item (click)="onPriorityChange(row, 'medium')">
+                        <mat-icon style="color:#f57f17">drag_handle</mat-icon>
+                        <span>Medium</span>
+                      </button>
+                      <button mat-menu-item (click)="onPriorityChange(row, 'low')">
+                        <mat-icon style="color:#2e7d32">keyboard_double_arrow_down</mat-icon>
+                        <span>Low</span>
+                      </button>
+                    </mat-menu>
+
                   </mat-cell>
                 </ng-container>
+
 
                 <!-- Revision Stage Column -->
                 <ng-container matColumnDef="revisionStage">
@@ -304,7 +317,7 @@
                 </mat-row>
 
                 <tr class="mat-row" *matNoDataRow>
-                  <td class="mat-cell" colspan="8">No data matching the filter</td>
+                  <td class="mat-cell" colspan="7">No data matching the filter</td>
                 </tr>
               </table>
 
@@ -351,7 +364,10 @@
                               (click)="toggleColorPicker(row._id, $event)">
                             </button>
                             @if (activeColorPicker === row._id) {
-                              <div class="color-picker-popup" (click)="$event.stopPropagation()">
+                              <div class="color-picker-popup"
+                                [style.top.px]="colorPickerPos.top"
+                                [style.left.px]="colorPickerPos.left"
+                                (click)="$event.stopPropagation()">
                                 <div class="color-grid">
                                   @for (c of noteColors; track c.value) {
                                     <button class="color-dot"

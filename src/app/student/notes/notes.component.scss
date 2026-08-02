@@ -1,4 +1,22 @@
 /* ══════════════════════════════════════════════════
+   TITLE CELL (title + topic subtitle)
+══════════════════════════════════════════════════ */
+.title-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.topic-subtitle {
+  font-size: 0.75rem;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ══════════════════════════════════════════════════
    PRIORITY BADGES
 ══════════════════════════════════════════════════ */
 .priority-badge {
@@ -48,22 +66,12 @@
   height: 13px !important;
 }
 
-/* Priority cell layout */
-.priority-cell {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.priority-select {
-  width: 22px !important;
-  min-width: 22px !important;
-  opacity: 0.35;
-  transition: opacity 0.2s;
-}
-
-.priority-select:hover {
-  opacity: 1;
+.priority-chevron {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin-left: 2px;
+  opacity: 0.6;
 }
 
 /* ══════════════════════════════════════════════════
@@ -73,17 +81,20 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  overflow: visible !important;
 }
 
 .color-swatch-btn {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: 2px solid rgba(0, 0, 0, 0.15);
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
   outline: none;
   padding: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .color-swatch-btn:hover {
@@ -92,16 +103,20 @@
 }
 
 .color-picker-popup {
-  position: absolute;
-  top: 30px;
-  left: 0;
-  z-index: 1000;
+  position: fixed;
+  z-index: 9999;
   background: #fff;
   border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  min-width: 120px;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  min-width: 130px;
+  animation: colorPickerIn 0.15s ease;
+}
+
+@keyframes colorPickerIn {
+  from { opacity: 0; transform: scale(0.85) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .color-grid {
