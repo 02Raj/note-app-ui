@@ -160,9 +160,15 @@
 
             <div class="table-responsive" (click)="activeColorPicker = null">
               @if (isLoading) {
-              <div class="spinner-container">
-                <mat-progress-spinner color="primary" [diameter]="40" mode="indeterminate">
-                </mat-progress-spinner>
+              <div class="spinner-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; gap: 15px;">
+                <mat-progress-spinner color="primary" [diameter]="50" mode="indeterminate"></mat-progress-spinner>
+                <div style="text-align: center;">
+                  <h4 style="margin: 0; color: #3f51b5; font-weight: 600; letter-spacing: 0.5px;">Loading Notes...</h4>
+                  <p style="margin: 8px 0 0 0; color: #666; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 6px; background: #fff3e0; padding: 6px 12px; border-radius: 20px; border: 1px solid #ffe0b2;">
+                    <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #f57c00;">cloud_sync</mat-icon>
+                    Waking up server, please wait (might take 30-40s)
+                  </p>
+                </div>
               </div>
               }
 
