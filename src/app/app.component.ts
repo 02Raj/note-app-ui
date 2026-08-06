@@ -3,6 +3,8 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Event, Router, NavigationStart, NavigationEnd } from '@angular/router';
 import { PageLoaderComponent } from './layout/page-loader/page-loader.component';
+import { KeepAliveService } from './core/service/keep-alive.service';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -13,7 +15,9 @@ import { PageLoaderComponent } from './layout/page-loader/page-loader.component'
 })
 export class AppComponent {
   currentUrl!: string;
-  constructor(public _router: Router) {
+  constructor(public _router: Router, private keepAliveService: KeepAliveService) {
+    this.keepAliveService.start();
+
     this._router.events.subscribe((routerEvent: Event) => {
       if (routerEvent instanceof NavigationStart) {
         this.currentUrl = routerEvent.url.substring(

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, of, tap } from 'rxjs';
 import { environment } from 'environments/environment';
 
 /**
@@ -22,8 +22,18 @@ export class NotesService {
   private noteApiUrl = `${environment.apiUrl}/notes`;
   private revisionApiUrl = `${environment.apiUrl}/revisions`; // URL for revision endpoints
 
+  // Cache for all notes
+  private allNotesSubject = new BehaviorSubject<any>(null);
+
   // Inject HttpClient to make API requests
   constructor(private http: HttpClient) { }
+
+  /**
+   * Invalidate the notes cache
+   */
+  clearCache() {
+    this.allNotesSubject.next(null);
+  }
 
   // ======================================================
   // CRUD Operations for Notes
@@ -34,7 +44,7 @@ export class NotesService {
    * @param payload - The note data to be saved.
    */
   createNote(payload: NotePayload): Observable<any> {
-    return this.http.post(this.noteApiUrl, payload);
+    return this.http.post(this.noteApiUrl, payload).pipe(tap(() => this.clearCache()));
   }
 /**
  * Updates an existing note by its ID.
@@ -42,24 +52,29 @@ export class NotesService {
  * @param payload - The updated note data.
  */
 updateNote(id: string, payload: NotePayload): Observable<any> {
-  return this.http.put(`${this.noteApiUrl}/${id}`, payload);
+  return this.http.put(`${this.noteApiUrl}/${id}`, payload).pipe(tap(() => this.clearCache()));
 }
 
 /** Quickly update only the priority of a note */
 updateNotePriority(id: string, priority: 'low' | 'medium' | 'high'): Observable<any> {
-  return this.http.put(`${this.noteApiUrl}/${id}`, { priority });
+  return this.http.put(`${this.noteApiUrl}/${id}`, { priority }).pipe(tap(() => this.clearCache()));
 }
 
 /** Quickly update only the color of a note (pass null to clear) */
 updateNoteColor(id: string, color: string | null): Observable<any> {
-  return this.http.put(`${this.noteApiUrl}/${id}`, { color });
+  return this.http.put(`${this.noteApiUrl}/${id}`, { color }).pipe(tap(() => this.clearCache()));
 }
 
   /**
    * Gets all notes for the current user.
    */
   getAllNotes(): Observable<any> {
-    return this.http.get(this.noteApiUrl);
+    if (this.allNotesSubject.value) {
+      return of(this.allNotesSubject.value);
+    }
+    return this.http.get(this.noteApiUrl).pipe(
+      tap(res => this.allNotesSubject.next(res))
+    );
   }
 
   /**
@@ -83,7 +98,7 @@ updateNoteColor(id: string, color: string | null): Observable<any> {
    * @param id - The ID of the note to delete.
    */
   deleteNote(id: string): Observable<any> {
-    return this.http.delete(`${this.noteApiUrl}/${id}`);
+    return this.http.delete(`${this.noteApiUrl}/${id}`).pipe(tap(() => this.clearCache()));
   }
 
   /**
