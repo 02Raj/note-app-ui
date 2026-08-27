@@ -1,9 +1,225 @@
-.clickable-row {
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+/* ══════════════════════════════════════════════════
+   TITLE CELL (title + topic subtitle)
+══════════════════════════════════════════════════ */
+.title-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
 }
 
-.active-row {
-  background-color: #e6f7e6 !important; // light green
-  border-left: 4px solid #2e7d32;
+.topic-subtitle {
+  font-size: 0.75rem;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ══════════════════════════════════════════════════
+   PRIORITY BADGES
+══════════════════════════════════════════════════ */
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 10px 3px 6px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.priority-badge-sm {
+  padding: 3px 6px;
+  border-radius: 10px;
+}
+
+.priority-high {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}
+
+.priority-medium {
+  background: #fff8e1;
+  color: #f57f17;
+  border: 1px solid #ffe082;
+}
+
+.priority-low {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+.priority-icon {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.priority-icon-sm {
+  font-size: 13px !important;
+  width: 13px !important;
+  height: 13px !important;
+}
+
+.priority-chevron {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin-left: 2px;
+  opacity: 0.6;
+}
+
+/* ══════════════════════════════════════════════════
+   COLOR SWATCH & PICKER
+══════════════════════════════════════════════════ */
+.color-btn-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  overflow: visible !important;
+}
+
+.color-swatch-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  outline: none;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.color-swatch-btn:hover {
+  transform: scale(1.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.color-picker-popup {
+  position: fixed;
+  z-index: 9999;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  min-width: 130px;
+  animation: colorPickerIn 0.15s ease;
+}
+
+@keyframes colorPickerIn {
+  from { opacity: 0; transform: scale(0.85) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.color-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.color-dot:hover {
+  transform: scale(1.2);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.color-dot.selected {
+  border-color: #333 !important;
+  transform: scale(1.15);
+}
+
+.color-dot-clear {
+  background: #f5f5f5 !important;
+  border: 2px dashed #bbb;
+  color: #aaa;
+}
+
+/* ══════════════════════════════════════════════════
+   DATE RANGE FILTER
+══════════════════════════════════════════════════ */
+.date-range-container {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #fafafa;
+}
+
+.date-range-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.clear-date-btn {
+  width: 20px !important;
+  height: 20px !important;
+  line-height: 20px !important;
+  padding: 0 !important;
+  color: #e53935;
+}
+
+.date-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-field {
+  flex: 1;
+  font-size: 0.85rem;
+}
+
+.date-separator {
+  color: #888;
+  font-weight: bold;
+  margin-bottom: 18px;
+}
+
+/* Active date range badge */
+.date-range-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  color: #1565c0;
+  margin-bottom: 12px;
+}
+
+/* ══════════════════════════════════════════════════
+   GRID CARD OVERRIDE
+══════════════════════════════════════════════════ */
+.note-grid-card {
+  cursor: pointer;
+  border-radius: 12px !important;
+  transition: transform 0.2s !important;
+  border-left: 4px solid transparent;
 }

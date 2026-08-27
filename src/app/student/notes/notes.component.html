@@ -17,8 +17,14 @@
                 </li>
                 <li class="tbl-search-box">
                   <label for="search-input"><i class="material-icons search-icon">search</i></label>
-                  <input placeholder="Search" type="text" (input)="onSearch($event)"
+                  <input placeholder="Local Search" type="text" (input)="onSearch($event)"
                     class="browser-default search-field" aria-label="Search box">
+                </li>
+                <!-- AI Search Box -->
+                <li class="tbl-search-box ms-3" style="border: 1.5px solid #9c27b0; border-radius: 20px; background: #fafafa;">
+                  <label for="ai-search-input"><i class="material-icons search-icon" style="color: #9c27b0;">auto_awesome</i></label>
+                  <input placeholder="✨ Ask AI..." type="text" (keyup.enter)="onAiSearch($event)"
+                    class="browser-default search-field" aria-label="AI Search box" style="color: #9c27b0; width: 200px;">
                 </li>
               </ul>
             </div>
@@ -55,9 +61,13 @@
               </ul>
             </div>
           </div>
+
           <div class="body">
+            <!-- ════════ FILTER FORM ════════ -->
             <form [formGroup]="filterForm" class="row gx-3 gy-2 align-items-center mb-4">
-              <div class="col-sm-4">
+
+              <!-- Topic -->
+              <div class="col-sm-3">
                 <mat-form-field class="w-100">
                   <mat-label>Filter by Topic</mat-label>
                   <mat-select formControlName="topicId">
@@ -68,7 +78,9 @@
                   </mat-select>
                 </mat-form-field>
               </div>
-              <div class="col-sm-4">
+
+              <!-- Subtopic -->
+              <div class="col-sm-3">
                 <mat-form-field class="w-100">
                   <mat-label>Filter by Subtopic</mat-label>
                   <mat-select formControlName="subtopicId">
@@ -79,34 +91,182 @@
                   </mat-select>
                 </mat-form-field>
               </div>
+
+              <!-- Priority Filter -->
+              <div class="col-sm-2">
+                <mat-form-field class="w-100">
+                  <mat-label>Priority</mat-label>
+                  <mat-select formControlName="priority">
+                    <mat-option value="">All</mat-option>
+                    <mat-option value="high">🔴 High</mat-option>
+                    <mat-option value="medium">🟡 Medium</mat-option>
+                    <mat-option value="low">🟢 Low</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <!-- Date Range -->
+              <div class="col-sm-4">
+                <div class="date-range-container">
+                  <div class="date-range-label">
+                    <mat-icon style="font-size:16px; vertical-align: middle; color:#555;">date_range</mat-icon>
+                    <span>Date Range</span>
+                    @if (filterForm.get('startDate')?.value || filterForm.get('endDate')?.value) {
+                      <button mat-icon-button class="clear-date-btn" (click)="clearDateRange()" matTooltip="Clear date filter">
+                        <mat-icon style="font-size: 16px;">close</mat-icon>
+                      </button>
+                    }
+                  </div>
+                  <div class="date-range-inputs">
+                    <mat-form-field class="date-field">
+                      <mat-label>From</mat-label>
+                      <input matInput [matDatepicker]="startPicker" formControlName="startDate" placeholder="Start date">
+                      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                      <mat-datepicker #startPicker></mat-datepicker>
+                    </mat-form-field>
+                    <span class="date-separator">→</span>
+                    <mat-form-field class="date-field">
+                      <mat-label>To</mat-label>
+                      <input matInput [matDatepicker]="endPicker" formControlName="endDate" placeholder="End date">
+                      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                      <mat-datepicker #endPicker></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+
+              <!-- AI Merge Button -->
+              <div class="col-sm-12 text-end">
+                @if (filterForm.get('topicId')?.value) {
+                  <button mat-raised-button color="accent" (click)="onAiMerge()" [disabled]="isLoading" style="background-color: #9c27b0; color: white;">
+                    <mat-icon>auto_awesome</mat-icon> Merge Duplicates with AI
+                  </button>
+                }
+              </div>
             </form>
 
-            <div class="table-responsive">
+            <!-- Active Date Range Badge -->
+            @if (filterForm.get('startDate')?.value || filterForm.get('endDate')?.value) {
+              <div class="date-range-badge">
+                <mat-icon style="font-size:16px; vertical-align:middle;">filter_alt</mat-icon>
+                Showing notes from
+                <strong>{{ filterForm.get('startDate')?.value | date:'mediumDate' }}</strong>
+                @if (filterForm.get('endDate')?.value) {
+                  → <strong>{{ filterForm.get('endDate')?.value | date:'mediumDate' }}</strong>
+                }
+                &nbsp;({{ (dataSource?.data ?? []).length }} notes)
+              </div>
+            }
+
+            <div class="table-responsive" (click)="activeColorPicker = null">
               @if (isLoading) {
-              <div class="spinner-container">
-                <mat-progress-spinner color="primary" [diameter]="40" mode="indeterminate">
-                </mat-progress-spinner>
+              <div class="spinner-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; gap: 15px;">
+                <mat-progress-spinner color="primary" [diameter]="50" mode="indeterminate"></mat-progress-spinner>
+                <div style="text-align: center;">
+                  <h4 style="margin: 0; color: #3f51b5; font-weight: 600; letter-spacing: 0.5px;">Loading Notes...</h4>
+                  <p style="margin: 8px 0 0 0; color: #666; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 6px; background: #fff3e0; padding: 6px 12px; border-radius: 20px; border: 1px solid #ffe0b2;">
+                    <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #f57c00;">cloud_sync</mat-icon>
+                    Waking up server, please wait (might take 30-40s)
+                  </p>
+                </div>
               </div>
               }
 
+              <!-- ════════ LIST VIEW ════════ -->
               <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table" [hidden]="isLoading || viewMode !== 'list'">
 
+                <!-- Color Swatch Column -->
+                <ng-container matColumnDef="color">
+                  <mat-header-cell *matHeaderCellDef style="max-width:60px; min-width:60px;">Color</mat-header-cell>
+                  <mat-cell *matCellDef="let row" style="max-width:60px; min-width:60px; position:relative;">
+                    <div class="color-btn-wrap" (click)="$event.stopPropagation()">
+                      <!-- Swatch circle -->
+                      <button class="color-swatch-btn"
+                        [style.background]="row.color || '#e0e0e0'"
+                        [matTooltip]="row.color ? 'Change color' : 'Mark with color'"
+                        (click)="toggleColorPicker(row._id, $event)">
+                      </button>
+
+                      <!-- Color Picker Popup -->
+                      @if (activeColorPicker === row._id) {
+                        <div class="color-picker-popup"
+                          [style.top.px]="colorPickerPos.top"
+                          [style.left.px]="colorPickerPos.left"
+                          (click)="$event.stopPropagation()">
+                          <div class="color-grid">
+                            @for (c of noteColors; track c.value) {
+                              <button class="color-dot"
+                                [style.background]="c.value"
+                                [class.selected]="row.color === c.value"
+                                [matTooltip]="c.label"
+                                (click)="setColor(row, c.value, $event)">
+                              </button>
+                            }
+                            <!-- Clear color -->
+                            <button class="color-dot color-dot-clear"
+                              [class.selected]="!row.color"
+                              matTooltip="No color"
+                              (click)="setColor(row, null, $event)">
+                              <mat-icon style="font-size:14px; line-height:14px;">block</mat-icon>
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+
+                <!-- Title Column (with topic as subtitle) -->
                 <ng-container matColumnDef="title">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Title</mat-header-cell>
                   <mat-cell *matCellDef="let row">
                     <span class="mobile-label">Title:</span>
-                    <span class="truncate-text">{{ row.title }}</span>
+                    <div class="title-cell">
+                      <span class="truncate-text" style="font-weight:500;">{{ row.title }}</span>
+                      @if (row.topicName) {
+                        <span class="topic-subtitle">{{ row.topicName }}</span>
+                      }
+                    </div>
                   </mat-cell>
                 </ng-container>
 
-                <ng-container matColumnDef="topicName">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Topic</mat-header-cell>
-                  <mat-cell *matCellDef="let row">
-                    <span class="mobile-label">Topic:</span>
-                    {{ row.topicName }}
+                <!-- Priority Column -->
+                <ng-container matColumnDef="priority">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Priority</mat-header-cell>
+                  <mat-cell *matCellDef="let row" (click)="$event.stopPropagation()">
+
+                    <!-- Badge acts as the menu trigger -->
+                    <button [class]="'priority-badge ' + getPriorityClass(row.priority)"
+                      [matMenuTriggerFor]="priorityMenu"
+                      matTooltip="Click to change priority"
+                      style="border:none; cursor:pointer; display:inline-flex; align-items:center; gap:3px;">
+                      <mat-icon class="priority-icon">{{ getPriorityIcon(row.priority) }}</mat-icon>
+                      {{ (row.priority || 'medium') | titlecase }}
+                      <mat-icon class="priority-chevron">arrow_drop_down</mat-icon>
+                    </button>
+
+                    <!-- Priority dropdown menu -->
+                    <mat-menu #priorityMenu="matMenu">
+                      <button mat-menu-item (click)="onPriorityChange(row, 'high')">
+                        <mat-icon style="color:#c62828">keyboard_double_arrow_up</mat-icon>
+                        <span>High</span>
+                      </button>
+                      <button mat-menu-item (click)="onPriorityChange(row, 'medium')">
+                        <mat-icon style="color:#f57f17">drag_handle</mat-icon>
+                        <span>Medium</span>
+                      </button>
+                      <button mat-menu-item (click)="onPriorityChange(row, 'low')">
+                        <mat-icon style="color:#2e7d32">keyboard_double_arrow_down</mat-icon>
+                        <span>Low</span>
+                      </button>
+                    </mat-menu>
+
                   </mat-cell>
                 </ng-container>
 
+
+                <!-- Revision Stage Column -->
                 <ng-container matColumnDef="revisionStage">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Revision Stage</mat-header-cell>
                   <mat-cell *matCellDef="let row">
@@ -115,6 +275,7 @@
                   </mat-cell>
                 </ng-container>
 
+                <!-- Due Date Column -->
                 <ng-container matColumnDef="revisionDueDate">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</mat-header-cell>
                   <mat-cell *matCellDef="let row">
@@ -123,6 +284,7 @@
                   </mat-cell>
                 </ng-container>
 
+                <!-- Created On Column -->
                 <ng-container matColumnDef="createdAt">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Created On</mat-header-cell>
                   <mat-cell *matCellDef="let row">
@@ -131,54 +293,63 @@
                   </mat-cell>
                 </ng-container>
 
+                <!-- Actions Column -->
                 <ng-container matColumnDef="actions">
                   <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
                   <mat-cell *matCellDef="let row" class="center-align">
 
-                    <!-- Edit Icon -->
                     <button mat-icon-button color="primary" (click)="$event.stopPropagation(); openCreateDialog(row)"
                       class="tbl-action-btn" matTooltip="Edit">
                       <mat-icon>edit</mat-icon>
                     </button>
 
-                    <!-- Delete Icon -->
                     <button mat-icon-button color="accent" (click)="$event.stopPropagation(); deleteItem(row)"
                       class="tbl-action-btn" matTooltip="Delete">
                       <mat-icon>delete_outline</mat-icon>
                     </button>
 
-
                     <button mat-icon-button color="warn" [disabled]="!isDue(row)"
-                      (click)="$event.stopPropagation(); markAsReviewed(row)">
+                      (click)="$event.stopPropagation(); markAsReviewed(row)" matTooltip="Mark Reviewed">
                       <mat-icon>done</mat-icon>
                     </button>
 
                   </mat-cell>
                 </ng-container>
 
-
                 <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
                 <mat-row *matRowDef="let row; columns: displayedColumns;" (click)="viewNote(row)" class="clickable-row"
+                  [style.background-color]="row.color ? row.color + '55' : ''"
                   [ngClass]="{ 'active-row': row._id === selectedNoteId }">
                 </mat-row>
 
                 <tr class="mat-row" *matNoDataRow>
-                  <td class="mat-cell" colspan="6">No data matching the filter</td>
+                  <td class="mat-cell" colspan="7">No data matching the filter</td>
                 </tr>
               </table>
 
-              <!-- Grid View -->
+              <!-- ════════ GRID VIEW ════════ -->
               <div class="row m-2" [hidden]="isLoading || viewMode !== 'grid'">
                 @for (row of obs$ | async; track row._id) {
                   <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4">
-                    <div class="card h-100 shadow-sm" (click)="viewNote(row)" style="cursor: pointer; border-radius: 12px; transition: transform 0.2s;" [ngClass]="{ 'active-row': row._id === selectedNoteId }" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <div class="card h-100 shadow-sm note-grid-card"
+                      (click)="viewNote(row)"
+                      [style.border-left]="row.color ? '4px solid ' + row.color : '4px solid transparent'"
+                      [style.background]="row.color ? row.color + '22' : ''"
+                      [ngClass]="{ 'active-row': row._id === selectedNoteId }"
+                      onmouseover="this.style.transform='scale(1.02)'"
+                      onmouseout="this.style.transform='scale(1)'">
                       <div class="card-body d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                           <h5 class="card-title text-truncate mb-0" style="max-width: 70%; font-weight: 500;" [matTooltip]="row.title">{{ row.title }}</h5>
-                          <span class="badge badge-solid-blue" style="font-size: 0.75rem;">Stage {{ row.revisionStage }}</span>
+                          <div class="d-flex gap-1 align-items-center">
+                            <span [class]="'priority-badge priority-badge-sm ' + getPriorityClass(row.priority)">
+                              <mat-icon class="priority-icon-sm">{{ getPriorityIcon(row.priority) }}</mat-icon>
+                            </span>
+                            <span class="badge badge-solid-blue" style="font-size: 0.75rem;">Stage {{ row.revisionStage }}</span>
+                          </div>
                         </div>
                         <h6 class="card-subtitle mb-3 text-muted" style="font-size: 0.85rem;">{{ row.topicName }}</h6>
-                        
+
                         <div class="mb-3 flex-grow-1">
                           <div class="d-flex align-items-center mb-1">
                             <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-right: 8px; color: #777;">event</mat-icon>
@@ -190,16 +361,50 @@
                           </div>
                         </div>
 
-                        <div class="d-flex justify-content-end mt-auto pt-3 border-top">
-                          <button mat-icon-button color="primary" (click)="$event.stopPropagation(); openCreateDialog(row)" matTooltip="Edit">
-                            <mat-icon>edit</mat-icon>
-                          </button>
-                          <button mat-icon-button color="accent" (click)="$event.stopPropagation(); deleteItem(row)" matTooltip="Delete">
-                            <mat-icon>delete_outline</mat-icon>
-                          </button>
-                          <button mat-icon-button color="warn" [disabled]="!isDue(row)" (click)="$event.stopPropagation(); markAsReviewed(row)" matTooltip="Mark Reviewed">
-                            <mat-icon>done</mat-icon>
-                          </button>
+                        <div class="d-flex justify-content-between mt-auto pt-3 border-top align-items-center">
+                          <!-- Color picker in grid -->
+                          <div style="position:relative;" (click)="$event.stopPropagation()">
+                            <button class="color-swatch-btn"
+                              [style.background]="row.color || '#e0e0e0'"
+                              matTooltip="Mark color"
+                              (click)="toggleColorPicker(row._id, $event)">
+                            </button>
+                            @if (activeColorPicker === row._id) {
+                              <div class="color-picker-popup"
+                                [style.top.px]="colorPickerPos.top"
+                                [style.left.px]="colorPickerPos.left"
+                                (click)="$event.stopPropagation()">
+                                <div class="color-grid">
+                                  @for (c of noteColors; track c.value) {
+                                    <button class="color-dot"
+                                      [style.background]="c.value"
+                                      [class.selected]="row.color === c.value"
+                                      [matTooltip]="c.label"
+                                      (click)="setColor(row, c.value, $event)">
+                                    </button>
+                                  }
+                                  <button class="color-dot color-dot-clear"
+                                    [class.selected]="!row.color"
+                                    matTooltip="No color"
+                                    (click)="setColor(row, null, $event)">
+                                    <mat-icon style="font-size:14px; line-height:14px;">block</mat-icon>
+                                  </button>
+                                </div>
+                              </div>
+                            }
+                          </div>
+
+                          <div class="d-flex">
+                            <button mat-icon-button color="primary" (click)="$event.stopPropagation(); openCreateDialog(row)" matTooltip="Edit">
+                              <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button color="accent" (click)="$event.stopPropagation(); deleteItem(row)" matTooltip="Delete">
+                              <mat-icon>delete_outline</mat-icon>
+                            </button>
+                            <button mat-icon-button color="warn" [disabled]="!isDue(row)" (click)="$event.stopPropagation(); markAsReviewed(row)" matTooltip="Mark Reviewed">
+                              <mat-icon>done</mat-icon>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
