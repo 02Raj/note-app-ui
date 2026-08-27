@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnDestroy } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -25,7 +25,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   templateUrl: './note-details.component.html',
   styleUrl: './note-details.component.scss'
 })
-export class NoteDetailsComponent implements OnDestroy {
+export class NoteDetailsComponent implements OnDestroy, OnInit {
 
   // Configuration for the read-only editor
   quillEditorModules = {
@@ -58,6 +58,31 @@ export class NoteDetailsComponent implements OnDestroy {
       this.synth = null;
       console.warn('Speech Synthesis not supported in this browser.');
     }
+  }
+
+  ngOnInit(): void {
+    if (this.note && this.note._id) {
+      this.fetchNoteDetails();
+    }
+  }
+
+  fetchNoteDetails(): void {
+    this.isLoading = true;
+    this.notesService.getNoteById(this.note._id).subscribe({
+      next: (res: any) => {
+        this.isLoading = false;
+        if (res && res.data) {
+          this.note = res.data;
+        } else if (res) {
+          // Fallback if data is directly the note
+          this.note = res.content !== undefined ? res : this.note; 
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Failed to load note details:', err);
+      }
+    });
   }
 
   // --------------- TEXT TO SPEECH METHODS ----------------

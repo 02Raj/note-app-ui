@@ -72,7 +72,7 @@ export class NotesComponent implements OnInit, AfterViewInit {
   ];
 
   displayedColumns: string[] = ['color', 'title', 'priority', 'revisionStage', 'revisionDueDate', 'createdAt', 'actions'];
-  dataSource!: MatTableDataSource<Note>;
+  dataSource: MatTableDataSource<Note> = new MatTableDataSource<Note>([]);
   isLoading = true;
 
   filterForm: FormGroup;

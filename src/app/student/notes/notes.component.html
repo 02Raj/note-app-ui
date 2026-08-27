@@ -154,7 +154,7 @@
                 @if (filterForm.get('endDate')?.value) {
                   → <strong>{{ filterForm.get('endDate')?.value | date:'mediumDate' }}</strong>
                 }
-                &nbsp;({{ (dataSource?.data ?? []).length }} notes)
+                &nbsp;({{ (dataSource.data || []).length }} notes)
               </div>
             }
 
