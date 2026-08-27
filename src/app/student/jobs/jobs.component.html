@@ -1,0 +1,141 @@
+<section class="content">
+  <div class="content-block">
+    @for (breadscrum of breadscrums; track breadscrum) {
+    <div class="block-header">
+      <app-breadcrumb [title]="breadscrum.title" [items]="breadscrum.items" [active_item]="breadscrum.active">
+      </app-breadcrumb>
+    </div>
+    }
+    
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+          <div class="materialTableHeader">
+            <div class="left">
+              <ul class="header-buttons-left ms-0">
+                <li class="tbl-title">
+                  <h2>Job Applications</h2>
+                </li>
+              </ul>
+            </div>
+            <div class="right">
+              <ul class="tbl-export-btn">
+                <li class="tbl-header-btn">
+                  <div class="m-l-10">
+                    <button mat-flat-button color="primary" (click)="openAddJobDialog()">
+                      <mat-icon>add</mat-icon> Add / Parse Job
+                    </button>
+                  </div>
+                </li>
+                <li class="tbl-header-btn">
+                  <div class="m-l-10">
+                    <button mat-icon-button (click)="loadJobs()" matTooltip="Refresh">
+                      <mat-icon>refresh</mat-icon>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="body">
+            <div class="table-responsive">
+              @if (isLoading) {
+                <div class="d-flex justify-content-center align-items-center p-5">
+                  <mat-progress-spinner color="primary" mode="indeterminate" diameter="50"></mat-progress-spinner>
+                </div>
+              }
+
+              <table mat-table [dataSource]="dataSource" class="mat-cell advance-table" [hidden]="isLoading">
+                
+                <!-- Company Name Column -->
+                <ng-container matColumnDef="companyName">
+                  <mat-header-cell *matHeaderCellDef>Company</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <span class="mobile-label">Company:</span>
+                    <strong>{{ row.companyName }}</strong>
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Skills Column -->
+                <ng-container matColumnDef="skills">
+                  <mat-header-cell *matHeaderCellDef>Skills</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <span class="mobile-label">Skills:</span>
+                    <span class="text-truncate" style="max-width: 250px; display: inline-block;" [matTooltip]="row.skillsRequired?.join(', ')">
+                      {{ row.skillsRequired?.join(', ') }}
+                    </span>
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Email Column -->
+                <ng-container matColumnDef="contactEmail">
+                  <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <span class="mobile-label">Email:</span>
+                    {{ row.contactEmail || 'N/A' }}
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Work Mode Column -->
+                <ng-container matColumnDef="workMode">
+                  <mat-header-cell *matHeaderCellDef>Mode</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <span class="mobile-label">Mode:</span>
+                    {{ row.workMode || 'N/A' }}
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Status Column -->
+                <ng-container matColumnDef="status">
+                  <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <span class="mobile-label">Status:</span>
+                    <button [class]="'badge ' + getStatusClass(row.status)" [matMenuTriggerFor]="statusMenu" style="border:none; cursor:pointer;">
+                      {{ row.status }} <mat-icon style="font-size: 14px; vertical-align: middle; height: 14px; width: 14px;">arrow_drop_down</mat-icon>
+                    </button>
+                    <mat-menu #statusMenu="matMenu">
+                      <button mat-menu-item (click)="updateStatus(row, 'Saved')">Saved</button>
+                      <button mat-menu-item (click)="updateStatus(row, 'Applied')">Applied</button>
+                      <button mat-menu-item (click)="updateStatus(row, 'Contacted')">Contacted</button>
+                      <button mat-menu-item (click)="updateStatus(row, 'Interviewing')">Interviewing</button>
+                      <button mat-menu-item (click)="updateStatus(row, 'Offer')">Offer</button>
+                      <button mat-menu-item (click)="updateStatus(row, 'Rejected')">Rejected</button>
+                    </mat-menu>
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Created At Column -->
+                <ng-container matColumnDef="createdAt">
+                  <mat-header-cell *matHeaderCellDef>Added On</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <span class="mobile-label">Added:</span>
+                    {{ row.createdAt | date: 'mediumDate' }}
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <mat-header-cell *matHeaderCellDef class="center-align">Actions</mat-header-cell>
+                  <mat-cell *matCellDef="let row" class="center-align">
+                    <button mat-icon-button color="primary" matTooltip="View Details" (click)="viewJob(row)">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                
+                <!-- No Data -->
+                <tr class="mat-row" *matNoDataRow [hidden]="isLoading">
+                  <td class="mat-cell text-center py-4" colspan="7">No jobs tracked yet. Click "Add / Parse Job" to get started!</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

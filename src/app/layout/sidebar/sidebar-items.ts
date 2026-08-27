@@ -256,10 +256,19 @@ export const ROUTES: RouteInfo[] = [
         role: [''],
         submenu: [],
       },
-  
+      {
+        path: '/student/jobs',
+        title: 'Job Tracking',
+        iconType: '',
+        icon: '',
+        class: 'ml-menu',
+        groupTitle: false,
+        badge: '',
+        badgeClass: '',
+        role: [''],
+        submenu: [],
+      },
     ],
-
-    
   },
   // Common Module
 

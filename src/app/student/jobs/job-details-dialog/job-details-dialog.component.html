@@ -1,0 +1,69 @@
+<div class="addContainer">
+  <div class="modalHeader">
+    <div class="modalTitle">
+      <mat-icon style="vertical-align: middle; margin-right: 8px;">work_outline</mat-icon>
+      Job Details
+    </div>
+    <button mat-icon-button (click)="onClose()" class="modal-close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div mat-dialog-content class="pt-3 pb-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h3 class="mb-1 fw-bold" style="color: #3f51b5;">{{ job.companyName }}</h3>
+        <p class="text-muted mb-0"><mat-icon style="font-size: 16px; vertical-align: text-bottom;">work</mat-icon> Mode: {{ job.workMode || 'N/A' }}</p>
+      </div>
+      <div>
+        <span class="badge" [ngClass]="{
+          'badge-solid-blue': job.status === 'Saved',
+          'badge-solid-purple': job.status === 'Applied',
+          'badge-solid-orange': job.status === 'Contacted',
+          'badge-solid-cyan': job.status === 'Interviewing',
+          'badge-solid-green': job.status === 'Offer',
+          'badge-solid-red': job.status === 'Rejected'
+        }" style="font-size: 14px; padding: 6px 12px;">{{ job.status }}</span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="mt-4 mb-4">
+      <h5 class="fw-bold mb-3"><mat-icon style="font-size: 18px; vertical-align: text-bottom; color: #ff4081;">stars</mat-icon> Skills Required</h5>
+      @if (job.skillsRequired && job.skillsRequired.length > 0) {
+        <mat-chip-set>
+          @for (skill of job.skillsRequired; track skill) {
+            <mat-chip>{{ skill }}</mat-chip>
+          }
+        </mat-chip-set>
+      } @else {
+        <p class="text-muted">No skills parsed.</p>
+      }
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 mb-3">
+        <h6 class="text-muted mb-1">Contact Email</h6>
+        <p class="fw-medium">{{ job.contactEmail || 'N/A' }}</p>
+      </div>
+      <div class="col-md-6 mb-3">
+        <h6 class="text-muted mb-1">Contact Phone</h6>
+        <p class="fw-medium">{{ job.contactPhone || 'N/A' }}</p>
+      </div>
+    </div>
+
+    <mat-divider class="mb-4"></mat-divider>
+
+    <div>
+      <h5 class="fw-bold mb-3"><mat-icon style="font-size: 18px; vertical-align: text-bottom;">description</mat-icon> Original Description</h5>
+      <div class="p-3" style="background-color: #f8f9fa; border-radius: 8px; white-space: pre-wrap; font-size: 14px; color: #555; max-height: 250px; overflow-y: auto;">
+        {{ job.rawText }}
+      </div>
+    </div>
+  </div>
+
+  <div mat-dialog-actions align="end" class="modal-actions mt-2">
+    <button mat-flat-button color="primary" (click)="onClose()">Close</button>
+  </div>
+</div>

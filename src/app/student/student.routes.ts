@@ -58,5 +58,9 @@ export const STUDENT_ROUTE: Route[] = [
     path: 'resume-analyzer',
     component: ResumeAnalyzerComponent,
   },
+  {
+    path: 'jobs',
+    loadComponent: () => import('./jobs/jobs.component').then(m => m.JobsComponent),
+  },
   { path: '**', component: Page404Component },
 ];
